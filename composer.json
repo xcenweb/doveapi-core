@@ -1,0 +1,32 @@
+{
+    "name": "xcenweb/doveapi-core",
+    "description": "doveapi core",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xcenweb",
+            "email": "xcenweb@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.4.3",
+    },
+    "autoload": {
+        "files": [
+            "src/DoveAPI.php",
+            "src/helper.php"
+        ],
+        "psr-4": {
+            "dove\\": "src/dove/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "dove\\tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+}
