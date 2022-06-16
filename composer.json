@@ -10,7 +10,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=7.4.3",
+        "php": ">=7.4.3"
     },
     "autoload": {
         "files": [
@@ -28,5 +28,5 @@
     },
     "config": {
         "sort-packages": true
-    },
+    }
 }
