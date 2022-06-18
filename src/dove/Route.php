@@ -6,7 +6,7 @@ class Route
     // 获取当前带 QUERY_STRING 的url
     public static function url($domain = false)
     {
-        $url = (isset($_SERVER['HTTP_X_REWRITE_URL']))?$_SERVER['HTTP_X_REWRITE_URL']:(isset($_SERVER['REQUEST_URI']))?$_SERVER['REQUEST_URI']:'';
+        $url = (isset($_SERVER['HTTP_X_REWRITE_URL']))?$_SERVER['HTTP_X_REWRITE_URL']:((isset($_SERVER['REQUEST_URI']))?$_SERVER['REQUEST_URI']:'');
         return $domain?static::domain().$url:$url;
     }
     
@@ -22,7 +22,7 @@ class Route
     public static function baseFile($file = null)
     {
         $script_name = basename($_SERVER['SCRIPT_FILENAME']);
-        return (basename($_SERVER['SCRIPT_NAME'])===$script_name)?$_SERVER['SCRIPT_NAME']:(basename($_SERVER['PHP_SELF'])===$script_name)?$_SERVER['PHP_SELF']:'';;
+        return (basename($_SERVER['SCRIPT_NAME'])===$script_name)?$_SERVER['SCRIPT_NAME']:((basename($_SERVER['PHP_SELF'])===$script_name)?$_SERVER['PHP_SELF']:'');
     }
     
     // 带协议的域名

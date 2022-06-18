@@ -7,7 +7,6 @@ use dove\Log;
 use dove\App;
 use dove\Route;
 use dove\Config;
-use dove\Plugin;
 
 class Debug
 {
@@ -56,7 +55,7 @@ class Debug
             static::json(($debug)?'json':'pe_json');
         }
         Log::saveErr(self::$file,self::$info,($debug)?'调试模式报错':'生产环境报错');
-        ($debug)?($debug_mode)?static::page('page'):static::json('json'):($debug_pe_mode)?static::page('pe_page'):static::json('pe_json');
+        ($debug)?(($debug_mode)?static::page('page'):static::json('json')):(($debug_pe_mode)?static::page('pe_page'):static::json('pe_json'));
     }
 
     // output html page
@@ -83,28 +82,27 @@ class Debug
 	        'version'=>DOVE_VERSION,
 	        'exitTime'=>round(microtime(true)-DOVE_START_TIME,8),
 	    ];
-	    if (Plugin::exists('Compiling')) {
-	        if(empty(App::$file)){
-	            $uncf_content = '[File Not Found]';
-	        }else{
-	            $uncf_content = file_exists(App::$file)?htmlspecialchars(file_get_contents(App::$file)):'[File Not Found]';
-	        }
-	        if(empty(App::$cachePath))
-	        {
-	            $cf_content = '[File Not Found]';
-	        }else{
-	            file_exists(App::$cachePath)?htmlspecialchars(file_get_contents(App::$cachePath)):'[File Not Found]';
-	        }
-	        $array['mistake_file'] = '<div class="mdui-row"><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 未编译文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$uncf_content.'</code></pre></div><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 编译后文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$cachePath).'</small></div><pre><code>'.$cf_content.'</code></pre></div></div>';
-	    } else {
-	        if(empty(App::$file))
-	        {
-	            $content = '[File Not Found]';
-	        }else{
-	            $content = file_exists(App::$file)?htmlspecialchars(file_get_contents(App::$file)):'[File Not Found]';
-	        }
-	        $array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$content.'</code></pre>';
+	    /** 中文语法支持再研究一下
+	     *   if(empty(App::$file)){
+	     *       $uncf_content = '[File Not Found]';
+	     *   }else{
+	     *       $uncf_content = file_exists(App::$file)?htmlspecialchars(file_get_contents(App::$file)):'[File Not Found]';
+	     *   }
+	     *   if(empty(App::$cachePath))
+	     *   {
+	     *       $cf_content = '[File Not Found]';
+	     *   }else{
+	     *       file_exists(App::$cachePath)?htmlspecialchars(file_get_contents(App::$cachePath)):'[File Not Found]';
+	     *   }
+	     *   $array['mistake_file'] = '<div class="mdui-row"><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 未编译文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$uncf_content.'</code></pre></div><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 编译后文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$cachePath).'</small></div><pre><code>'.$cf_content.'</code></pre></div></div>';
+	     */
+	    if(empty(App::$file))
+	    {
+	        $content = '[404 File Not Found]';
+	    }else{
+	        $content = file_exists(App::$file)?htmlspecialchars(file_get_contents(App::$file)):'[404 File Not Found]';
 	    }
+	    $array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$content.'</code></pre>';
         $value = [];
         $string= [];
         foreach($array as $val=>$str){

@@ -8,7 +8,6 @@ use Exception;
 use dove\Debug;
 use dove\Route;
 use dove\Config;
-use dove\Plugin;
 
 class App extends Api
 {
@@ -24,18 +23,17 @@ class App extends Api
         if(Config::get('api','autoload')) $this->start();
         if(file_exists(self::$path.'__begin.php')) require self::$path.'__begin.php';
 
-        if(Plugin::exists('compiling')){
-            if(!file_exists(self::$cachePath)){
-                static::mk_cache();
-            } else {
-                // 通过修改时间判断源文件是否更新
-                // 生产环境下强烈建议注释掉该句
-                if(filemtime(self::$cachePath)<filemtime(self::$file)) static::up_cache();
-            }
-            require self::$cachePath;
-        } else {
-            require self::$file;
-        }
+        /** 暂时不知道用在哪，先放在这里
+         *   if(!file_exists(self::$cachePath)){
+         *       static::mk_cache();
+         *   } else {
+         *       // 通过修改时间判断源文件是否更新
+         *       // 生产环境下强烈建议注释掉该句
+         *       if(filemtime(self::$cachePath)<filemtime(self::$file)) static::up_cache();
+         *   }
+         *   require self::$cachePath;
+         */
+        require self::$file;
         if(file_exists(self::$path.'__coda.php')) require self::$path.'__coda.php';
         return;
     }
@@ -48,7 +46,7 @@ class App extends Api
         $AClist = Config::get('AccessControl');
 
         // 预留的框架管理器(若无用可删
-        if(!!$AClist['fme_setting']['entry']&&$baseUrlArr[1]==$AClist['fme_setting']['entry']) Plugin::load('fme',[Route::baseUrl(true),$baseUrl,$AClist],true);
+        // if(!!$AClist['fme_setting']['entry']&&$baseUrlArr[1]==$AClist['fme_setting']['entry']) Plugin::load('fme',[Route::baseUrl(true),$baseUrl,$AClist],true);
         
         /**
          * 1.是否是一个禁止外部访问的一级目录
@@ -68,7 +66,7 @@ class App extends Api
     {
         $handleA = fopen(self::$file,'r');
         $handleC = fopen(self::$cachePath,'w');
-        fwrite($handleC,Plugin::use('compiling',[fread($handleA,filesize(self::$file))]));
+        fwrite($handleC,fread($handleA,filesize(self::$file)));
         fclose($handleA);
         fclose($handleC);
         return true;

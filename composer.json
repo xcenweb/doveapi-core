@@ -5,7 +5,8 @@
     "authors": [
         {
             "name": "xcenweb",
-            "email": "xcenweb@qq.com"
+            "email": "xcenweb@qq.com",
+            "homepage": "http://dove.xcenadmin.top"
         }
     ],
     "require": {
@@ -21,6 +22,13 @@
         }
     },
     "config": {
+        "preferred-install": "dist",
         "sort-packages": true
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
+        }
     }
 }
