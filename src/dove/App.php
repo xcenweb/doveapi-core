@@ -40,9 +40,9 @@ class App extends Api
 
     public static function init()
     {
-        $baseUrl  = str_replace('//','/',Route::baseUrl());
+        $baseUrl  = str_replace(['//','\\'],'/',Route::baseUrl());
         $baseUrlArr = explode('/',$baseUrl);
-        $pathinfo = pathinfo($baseUrl);
+        $pathinfo = str_replace('\\','/',pathinfo($baseUrl));
         $AClist = Config::get('AccessControl');
 
         // 预留的框架管理器(若无用可删
@@ -57,6 +57,7 @@ class App extends Api
         $file = ($pathinfo['dirname']=='/'||$pathinfo['dirname']=='.')?($pathinfo['basename']=='')?'/'.$AClist['default_file']:'/'.$pathinfo['basename'].'.php':$pathinfo['dirname'].'/'.$pathinfo['basename'].'.php';
         self::$file = rtrim(DOVE_APP_DIR,'/').$file;
         self::$path = pathinfo(self::$file)['dirname'].'/';
+		
         self::$cacheName = base64_encode($file);
         self::$cachePath = DOVE_RUNTIME_DIR.'cache/'.self::$cacheName.'.php';
         return;
