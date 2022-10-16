@@ -45,15 +45,14 @@ class App extends Api
         $pathinfo = str_replace('\\','/',pathinfo($baseUrl));
         $AClist = Config::get('AccessControl');
 
-        // 预留的框架管理器(若无用可删
-        // if(!!$AClist['fme_setting']['entry']&&$baseUrlArr[1]==$AClist['fme_setting']['entry']) Plugin::load('fme',[Route::baseUrl(true),$baseUrl,$AClist],true);
-        
         /**
          * 1.是否是一个禁止外部访问的一级目录
          * 2.是否是起始或结束自动加载文件
          * 3.这个方法只进行多级目录检查，但对性能影响可能会有点大，观察一下
          */
-        if(in_array($baseUrlArr[1],$AClist['padlock'],true)||in_array($pathinfo['filename'],['__begin','__coda'],true)||in_array(preg_replace("/^\/+?|\/+?$/",'',$baseUrl),$AClist['padlock'],true)) throw new Exception('目录或文件['.$baseUrlArr[1].']已被设置为禁止外部访问或为起始、结束文件!',403);
+        if(in_array($baseUrlArr[1],$AClist['padlock'],true)||in_array($pathinfo['filename'],['__begin','__coda'],true)||in_array(preg_replace("/^\/+?|\/+?$/",'',$baseUrl),$AClist['padlock'],true)) {
+			throw new Exception('目录或文件['.$baseUrlArr[1].']已被设置为禁止外部访问或为起始、结束文件!',403);
+		}
         $file = ($pathinfo['dirname']=='/'||$pathinfo['dirname']=='.')?($pathinfo['basename']=='')?'/'.$AClist['default_file']:'/'.$pathinfo['basename'].'.php':$pathinfo['dirname'].'/'.$pathinfo['basename'].'.php';
         self::$file = rtrim(DOVE_APP_DIR,'/').$file;
         self::$path = pathinfo(self::$file)['dirname'].'/';

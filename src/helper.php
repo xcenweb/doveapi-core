@@ -42,9 +42,9 @@ function set_config($name = '', $value = [])
  * @parma array $array 设置值
  * @return boolean
  */
-function set_header($array=[])
+function set_header($array = [])
 {
-    foreach($array as $string=>$replace){
+    foreach($array as $string => $replace){
         is_numeric($string)?header($replace):header($string,$replace);
     }
     return true;
@@ -55,9 +55,9 @@ function set_header($array=[])
  * @parma array $array 设置值
  * @return boolean
  */
-function set_ini($array=[])
+function set_ini($array = [])
 {
-    foreach($array as $varname=>$newvalue){
+    foreach($array as $varname => $newvalue){
         if(ini_get($varname)) ini_set($varname,strval($newvalue));
     }
     return true;
@@ -133,7 +133,7 @@ function mb_str_right($str, $q, $offset = 0)
 /**
  * http method
  * @param string $m_n 使用的方法、方法名
- * @param string $def 默认的内容
+ * @param string $def 默认值
  * @return string
  */
 function M($m_n,$def='')
@@ -141,17 +141,19 @@ function M($m_n,$def='')
     $m_n = explode('.',$m_n);
     $m = isset($m_n[0])?$m_n[0]:'r';
     $n = isset($m_n[1])?$m_n[1]:'*';
-    if($m=="get"||$m=="g"){
-        if($n=='*') return $_GET;
+    if($m == "get"||$m == "g"){
+        if($n == '*') return $_GET;
+		if($n == 'only') return isset(array_keys($_GET)[0])?array_keys($_GET)[0]:$def;
         return isset($_GET[$n])?$_GET[$n]:$def;
-    } elseif ($m=="post"||$m=="p"){
-        if($n=='*') return $_POST;
+    } elseif ($m == "post"||$m == "p"){
+        if($n == '*') return $_POST;
+		if($n == 'only') return isset(array_keys($_POST)[0])?array_keys($_POST)[0]:$def;
         return isset($_POST[$n])?$_POST[$n]:$def;
-    } elseif ($m=="request"||$m=="r"){
-        if($n=='*') return $_REQUEST;
+    } elseif ($m == "request"||$m == "r"){
+        if($n == '*') return $_REQUEST;
         return isset($_REQUEST[$n])?$_REQUEST[$n]:$def;
     }
-    return false;
+    return $def;
 }
 
 /**
@@ -161,7 +163,7 @@ function M($m_n,$def='')
  */
 function space_total($total=0) {
 	$rule = ['GB'=>1073741824,'MB'=>1048576,'KB'=>1024];
-	foreach($rule as $unit=>$byte){
+	foreach($rule as $unit => $byte){
 		if($total>$byte) return round($total/$byte).$unit;
 	}
 	return $total.'B';
