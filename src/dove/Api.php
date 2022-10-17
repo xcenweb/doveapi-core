@@ -85,7 +85,13 @@ class Response
         $this->temps = $config['response_temps'];
         $this->uni = $config['response_uni'];
     }
-
+	
+	// set uni back content
+	public function set_uni($uni = 'void')
+	{
+		$this->uni = $uni;
+	}
+	
     // uni back content
     public function uni()
     {
@@ -125,7 +131,8 @@ class Response
         header("Content-type: text/xml;charset=utf-8");
         die(ArrToxml::build($arr,'response'));
     }
-
+	
+	// 输出html，可选择压缩html
     public function html($html,$zip=false)
     {
         ob_clean();
