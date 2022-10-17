@@ -136,10 +136,11 @@ class Response
     public function html($html,$zip=false)
     {
         ob_clean();
-        
+		
         die($html);
     }
-
+	
+	// 输出空值
     public function void()
     {
         ob_clean();
