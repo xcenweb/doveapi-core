@@ -16,8 +16,12 @@ class Config
      */
     public static function get($name,$con='*',$def='')
     {
-        if(!isset(self::$_config[$name])) static::pull($name);
-        if($con=='*') return isset(self::$_config[$name])?self::$_config[$name]:[];
+        if(!isset(self::$_config[$name])) {
+			static::pull($name);
+		}
+        if($con == '*') {
+			return isset(self::$_config[$name])?self::$_config[$name]:[];
+		}
         return isset(self::$_config[$name][$con])?self::$_config[$name][$con]:$def;
     }
 
@@ -31,7 +35,7 @@ class Config
 		} else {
 			self::$_config[$name] = $set;
 		}
-        // return isset(self::$_config[$name])?array_merge(self::$_config[$name],$set):self::$_config[$name]=$set;
+		return true;
     }
     
     /**
@@ -41,7 +45,9 @@ class Config
     {
         // if(isset(self::$_config[$name])) return self::$_config[$name];
         $f = DOVE_CONFIG_DIR.$name.self::$_ext;
-        if(!file_exists($f)) throw new Exception("配置文件 {$conf} 不存在",500);
+        if(!file_exists($f)) {
+			throw new Exception("配置文件 {$conf} 不存在",500);
+		}
         return self::$_config[$name] = require $f;
     }
 }
