@@ -26,7 +26,12 @@ class Config
      */
     public static function set($name,$set=[])
     {
-        return isset(self::$_config[$name])?array_merge(self::$_config[$name],$set):self::$_config[$name]=$set;
+		if(isset(self::$_config[$name])) {
+			self::$_config[$name] = array_merge(self::$_config[$name], $set);
+		} else {
+			self::$_config[$name] = $set;
+		}
+        // return isset(self::$_config[$name])?array_merge(self::$_config[$name],$set):self::$_config[$name]=$set;
     }
     
     /**

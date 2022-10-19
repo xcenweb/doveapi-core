@@ -14,7 +14,6 @@ class Debug
     public static $info; //error info
     public static $file; //error file
     public static $backtrace; // trace array
-    public static $tplDir = DOVE_DIR.'tpl/debug/'; //template dir
 
     public static function register()
     {
@@ -39,7 +38,7 @@ class Debug
     {
         self::$code = $e->getCode();
         self::$file = $e->getFile();
-        self::$info = $e->getMessage().'在文件['.$e->getFile().'] 第'.$e->getLine().'行';
+        self::$info = $e->getMessage().' 在文件['.$e->getFile().'] 第'.$e->getLine().'行';
         self::$backtrace = array_reverse($e->getTrace());
         static::de();
     }
@@ -52,10 +51,10 @@ class Debug
         // if ajax request,response json text
         if(isset($_SERVER['HTTP_X_REQUESTED_WITH'])&&strtolower($_SERVER['HTTP_X_REQUESTED_WITH'])=='xmlhttprequest'){
             Log::saveErr(self::$file,self::$info,'(ajax)');
-            static::json(($debug)?'json':'pe_json');
+            static::json(($debug)?Config::get('dove','debug_mode_json_path'):Config::get('dove','pe_debug_mode_json_path'));
         }
         Log::saveErr(self::$file,self::$info,($debug)?'调试模式报错':'生产环境报错');
-        ($debug)?(($debug_mode)?static::page('page'):static::json('json')):(($debug_pe_mode)?static::page('pe_page'):static::json('pe_json'));
+        ($debug)?(($debug_mode)?static::page(Config::get('dove','debug_mode_page_path')):static::json(Config::get('dove','debug_mode_json_path'))):(($debug_pe_mode)?static::page(Config::get('dove','pe_debug_mode_page_path')):static::json(Config::get('dove','pe_debug_mode_json_path')));
     }
 
     // output html page
@@ -64,25 +63,31 @@ class Debug
         $stack = '';
 	    $line = 1;
 	    foreach(self::$backtrace as $key => $val){
-		    $stack.= "<kbd>{$line}.</kbd> is ";
-	    	if(isset($val['class'])) $stack.='<u>'.$val['class'].'</u>'.$val['type'];
-		    if(isset($val['function'])) $stack.= ($val['function']=='{closure}') ? '<font color="red"><b>{closure}</b></font>' : '<mark>'.$val['function'].'()</mark>';
-		    if(isset($val['file']) && isset($val['line'])) $stack.='在文件 [<u>'.$val['file'].']</u> <b>第'.$val['line'].'行</b>';
-	    	$stack.= "\r\n";
+		    $stack .= "<kbd>{$line}.</kbd> is ";
+	    	if(isset($val['class'])) {
+				$stack .= '<u>'.$val['class'].'</u>'.$val['type'];
+			}
+		    if(isset($val['function'])) {
+				$stack .= ($val['function'] == '{closure}') ? '<font color="red"><b>{closure}</b></font>' : '<mark>'.$val['function'].'()</mark>';
+			}
+		    if(isset($val['file']) && isset($val['line'])) {
+				$stack .= '在文件 [<u>'.$val['file'].']</u> <b>第'.$val['line'].'行</b>';
+			}
+	    	$stack .= "\r\n";
 		    $line++;
 	    }
 	    $array = [
-	        'domain'=>Route::domain(),
-	        'err_code'=>self::$code,
-	        'err_info'=>self::$info,
-	        'err_file'=>self::$file,
-	        'call_stack'=>str_replace('\\','/',$stack),
+	        'domain' => Route::domain(),
+	        'err_code' => self::$code,
+	        'err_info' => self::$info,
+	        'err_file' => self::$file,
+	        'call_stack' => str_replace('\\','/',$stack),
 	        'get_array_list' => static::array_list($_GET),
 	        'post_array_list' => static::array_list($_POST),
-	        'version'=>DOVE_VERSION,
-	        'exitTime'=>round(microtime(true)-DOVE_START_TIME,8),
+	        'version' => DOVE_VERSION,
+	        'exitTime' => round(microtime(true)-DOVE_START_TIME,8),
 	    ];
-	    /** 中文语法支持再研究一下
+	    /** 中文语法报错支持再研究一下
 	     *   if(empty(App::$file)){
 	     *       $uncf_content = '[File Not Found]';
 	     *   }else{
@@ -110,7 +115,8 @@ class Debug
             $string[]= $str;
         }
         ob_clean();
-        die(str_replace($value,$string,file_get_contents(self::$tplDir.$tpl.'.tpl')));
+		header('Content-type: text/html;charset=utf-8');
+        die(str_replace($value,$string,file_get_contents($tpl)));
     }
 
     // output json text
@@ -119,26 +125,36 @@ class Debug
         $stack = [];
 	   	$line = 1;
 	    foreach(self::$backtrace as $key => $val){
-	   		if(isset($val['class'])) $stack['#'.$line]['do']=$val['class'].$val['type'];
-		   	if(isset($val['function'])) $stack['#'.$line]['do']= ($val['function']=='{closure}') ? '{closure}' : $val['function'].'()';
-		   	if(isset($val['file']) && isset($val['line'])) $stack['#'.$line]['in']=$val['file'].':'.$val['line'];
+	   		if(isset($val['class'])) {
+				$stack['#'.$line]['do'] = $val['class'].$val['type'];
+			}
+		   	if(isset($val['function'])) {
+				$stack['#'.$line]['do'] = ($val['function'] == '{closure}') ? '{closure}' : $val['function'].'()';
+			}
+		   	if(isset($val['file']) && isset($val['line'])) {
+				$stack['#'.$line]['in'] = $val['file'].':'.$val['line'];
+			}
 		    $line++;
 	    }
 	    $code = self::$code;
 	   	$info = self::$info;
 	    $file = self::$file;
 	    
-        $array = require self::$tplDir.$tpl.'.php';
+        $array = require $tpl;
         ob_clean();
         header('Content-type: application/json;charset=utf-8');
         die(json_encode($array,JSON_UNESCAPED_UNICODE));
     }
     
+	/**
+	 * method列表
+	 * @param array $array
+	 */
     public static function array_list($array){
         $return = '';
-        foreach($array as $k=>$v){
-            if($v=='') $v = '<font color="red">NULL</font>';
-            $return.= "<b>$k</b> = $v<br>";
+        foreach($array as $k => $v){
+            if($v == '') $v = '<font color="red">NULL</font>';
+            $return .= "<b>$k</b> = $v<br>";
         }
         return empty($return)?'<font color="red">--Empty--</font>':$return;
     }
