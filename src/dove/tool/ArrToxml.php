@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
+
 // 将数组转为xml，只能将数组转为标准的xml
-// 感谢大佬 https://github.com/jmarceli/array2xml
+// edit from https://github.com/jmarceli/array2xml,thank :)
+
 namespace dove\tool;
 class ArrToxml
 {
