@@ -86,8 +86,6 @@ function function_dump($funcname) {
     die("已找到函数 $funcname 在文件 [$filename]:$start-$end行)");
 }
 
-// = = = = = = = = = = = = = = = = = =
-
 /**
  *  DoveApi - 使您快速编写Api接口的PHP框架
  *  
