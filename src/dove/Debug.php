@@ -84,6 +84,8 @@ class Debug
 	        'call_stack' => str_replace('\\','/',$stack),
 	        'get_array_list' => static::array_list($_GET),
 	        'post_array_list' => static::array_list($_POST),
+			'cookie_array_list' => static::array_list($_COOKIE),
+			'server_array_list' => static::array_list($_SERVER),
 	        'version' => DOVE_VERSION,
 	        'exitTime' => round(microtime(true)-DOVE_START_TIME,8),
 	    ];
@@ -107,7 +109,7 @@ class Debug
 	    }else{
 	        $content = file_exists(App::$file)?htmlspecialchars(file_get_contents(App::$file)):'[404 File Not Found]';
 	    }
-	    $array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$content.'</code></pre>';
+	    $array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>/'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$content.'</code></pre>';
         $value = [];
         $string= [];
         foreach($array as $val=>$str){
@@ -147,13 +149,14 @@ class Debug
     }
     
 	/**
-	 * method列表
+	 * 解析数组
 	 * @param array $array
 	 */
     public static function array_list($array){
         $return = '';
         foreach($array as $k => $v){
             if($v == '') $v = '<font color="red">NULL</font>';
+			if(is_numeric($v)) $v = '<font color="blue">'. $v .'</font>';
             $return .= "<b>$k</b> = $v<br>";
         }
         return empty($return)?'<font color="red">--Empty--</font>':$return;

@@ -14,16 +14,26 @@ class Filecache {
         return true;
     }
 
-    // 设置缓存，数组自动序列化
-    public function set($key,$value='',$exp=0){
+    /**
+	 * 设置缓存，数组自动序列化
+	 * @param string $key 标记
+	 * @param mixed $value 缓存值
+	 * @param int $exp 缓存时间，0为永久
+	 * @return bool
+	 */
+    public function set($key, $value = '', $exp = 0){
         $f = $this->path.$key.$this->suffix;
         file_put_contents($f,gzcompress(strval(is_array($value)?serialize($value):$value),$this->compress_level));
         return touch($f,time()+$exp);
     }
 
-    // 读取缓存，数组自动去序列化
-    // get(名称,true是删除后返回内容,默认删除后返回false)
-    public function get($key,$delp=false){
+	/**
+	 * 读取缓存，数组自动去序列化
+	 * @param string $key 标记
+	 * @param bool $delp 过期是否返回值
+	 * @return mixed
+	 */
+    public function get($key, $delp = false){
         $f = $this->path.$key.$this->suffix;
         if(!file_exists($f)) return false;
         $data = gzuncompress(file_get_contents($f));
@@ -34,8 +44,13 @@ class Filecache {
         return (preg_match("/^a\:[0-9]\:\{.*\}/",$data)==1)?unserialize($data):$data;
     }
 
-    // 数值自增，返回自增后的值
-    public function inc($key,$int=1){
+    /**
+	 * 数值自增，返回自增后的值
+	 * @param string $key 标记
+	 * @param int $int 自增数
+	 * @return int
+	 */ 
+    public function inc($key, $int = 1){
         $f = $this->path.$key.$this->suffix;
         if(!file_exists($f)) return false;
         $int = intval(gzuncompress(file_get_contents($f)))+$int;
@@ -43,8 +58,13 @@ class Filecache {
         return $int;
     }
 
-    // 数值自减，返回自减后的值
-    public function dec($key,$int=1){
+	/**
+	 * 数值自减，返回自减后的值
+	 * @param string $key 标记
+	 * @param int $int 自减数
+	 * @return int
+	 */
+    public function dec($key, $int = 1){
         $f = $this->path.$key.$this->suffix;
         if(!file_exists($f)) return false;
         $int = intval(gzuncompress(file_get_contents($f)))-$int;
@@ -52,7 +72,10 @@ class Filecache {
         return $int;
     }
 
-    // 删除缓存，可进行多个删除
+	/**
+	 * 删除缓存，可一次性删除多个
+	 * @return bool
+	 */
     public function del(){
         $keys = func_get_args();
         foreach($keys as $key){
@@ -63,7 +86,10 @@ class Filecache {
         return true;
     }
 
-    // 删除所有缓存，包括子目录
+	/**
+	 * 删除所有缓存，包括子目录
+	 * @return bool
+	 */
     public function clean(){
         $dirs = scandir($this->path);
         foreach ($dirs as $dir) {

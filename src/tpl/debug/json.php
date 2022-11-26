@@ -7,8 +7,11 @@ return [
         'file' => $file,
         'info' => $info,
         'call_stack' => $stack,
+
         'get' => $_GET,
         'post' => $_POST,
+		'cookie' => $_COOKIE,
+		'server' => $_SERVER,
     ],
     'DoveAPI' => DOVE_VERSION,
 ];

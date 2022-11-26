@@ -39,7 +39,7 @@ function set_config($name = '', $value = [])
 
 /**
  * 设置header
- * @parma array $array 设置值
+ * @param array $array 设置值
  * @return boolean
  */
 function set_header($array = [])
@@ -52,7 +52,7 @@ function set_header($array = [])
 
 /**
  * 临时设置ini
- * @parma array $array 设置值
+ * @param array $array 设置值
  * @return boolean
  */
 function set_ini($array = [])
@@ -64,7 +64,7 @@ function set_ini($array = [])
 }
 
 /**
- * 找到函数所在的位置
+ * 找到某个函数所在的位置
  * @param mixed $name 函数名称
  * @return string
  */
@@ -141,11 +141,11 @@ function M($m_n,$def='')
     $n = isset($m_n[1])?$m_n[1]:'*';
     if($m == "get"||$m == "g"){
         if($n == '*') return $_GET;
-		if($n == 'only') return isset(array_keys($_GET)[0])?array_keys($_GET)[0]:$def;
+		if($n == '') return isset(array_keys($_GET)[0])?array_keys($_GET)[0]:$def;
         return isset($_GET[$n])?$_GET[$n]:$def;
     } elseif ($m == "post"||$m == "p"){
         if($n == '*') return $_POST;
-		if($n == 'only') return isset(array_keys($_POST)[0])?array_keys($_POST)[0]:$def;
+		if($n == '') return isset(array_keys($_POST)[0])?array_keys($_POST)[0]:$def;
         return isset($_POST[$n])?$_POST[$n]:$def;
     } elseif ($m == "request"||$m == "r"){
         if($n == '*') return $_REQUEST;
