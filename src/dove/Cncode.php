@@ -1,7 +1,10 @@
 <?php 
 namespace dove;
-// DoveAPI中文语法输出输入支持
-// TODO echo preg_replace('/输出 (.*)\;/','Cncode::echo($1)',$v);
+
+/**
+ * DoveAPI中文语法输出输入支持
+ * @package dove
+ */ 
 class Cncode {
 	public static function echo($v)
 	{

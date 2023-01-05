@@ -1,5 +1,4 @@
 <?php 
-
 /**
  *  DoveAPI - 使您快速编写API接口的PHP框架
  *
@@ -15,8 +14,8 @@ define('DOVE_VERSION', '1.1.2');
 define('DOVE_START_TIME', microtime(true));
 
 define('ROOT_DIR', str_replace(['\\','//'],'/',dirname(dirname(dirname(dirname(__DIR__))))).'/');
-
 define('DOVE_DIR', __DIR__.'/');
+
 define('DOVE_APP_DIR', ROOT_DIR.'app/');        // 应用目录
 define('DOVE_CONFIG_DIR', ROOT_DIR.'config/');  // 配置目录
 define('DOVE_DATA_DIR', ROOT_DIR.'data/');      // 数据目录

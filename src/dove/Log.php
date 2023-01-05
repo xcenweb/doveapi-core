@@ -5,8 +5,12 @@ namespace dove;
 use Exception;
 use dove\Route;
 
+/**
+ * DoveAPI框架日志支持类
+ */
 class Log
 {
+
     // 自定义log
     public static function save($add=[],$path='unknown',$logname='unknown',$type='unknown')
     {
@@ -16,7 +20,7 @@ class Log
         if(func_num_args()==2){
             $perset = Config::get('dove','log_preset');
             if(!isset($perset[$path])) {
-				throw new Exception(500,'log：自定义预设['.$path.']不存在');
+				throw new Exception("log:自定义预设[{$path}]不存在",500);
 			}
             $logname = isset($perset[$path][2])?$perset[$path][2]:'unknown';
             $type = isset($perset[$path][0])?$perset[$path][0]:'unknown';

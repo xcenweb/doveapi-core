@@ -83,7 +83,7 @@ function function_dump($funcname) {
     $start   = $func->getStartLine() - 1;
     $end     = $func->getEndLine() - 1;
     $filename= $func->getFileName();
-    die("已找到函数 $funcname 在文件 [$filename]:$start-$end行)");
+    die("已找到函数 {$funcname} 在文件 [{$filename}]:{$start}-{$end}行)");
 }
 
 /**
@@ -130,11 +130,11 @@ function mb_str_right($str, $q, $offset = 0)
 
 /**
  * http method
- * @param string $m_n 使用的方法、方法名
+ * @param string $m_n 使用的方法.方法名
  * @param string $def 默认值
  * @return string
  */
-function M($m_n,$def='')
+function M($m_n,$def = '')
 {
     $m_n = explode('.',$m_n);
     $m = isset($m_n[0])?$m_n[0]:'r';
@@ -151,6 +151,7 @@ function M($m_n,$def='')
         if($n == '*') return $_REQUEST;
         return isset($_REQUEST[$n])?$_REQUEST[$n]:$def;
     }
+    // TODO put方法支持
     return $def;
 }
 
@@ -159,7 +160,7 @@ function M($m_n,$def='')
  * @param string $total 字节数
  * @return string 返回空间大小
  */
-function space_total($total=0) {
+function space_total($total = 0) {
 	$rule = ['GB'=>1073741824,'MB'=>1048576,'KB'=>1024];
 	foreach($rule as $unit => $byte){
 		if($total>$byte) return round($total/$byte).$unit;

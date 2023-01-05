@@ -5,34 +5,60 @@ namespace dove;
 
 use dove\Api;
 use Exception;
-use dove\Debug;
 use dove\Route;
 use dove\Config;
 
+/**
+ * DoveAPI框架核心逻辑支持
+ * @package dove
+ */
 class App extends Api
 {
-    public static $path;      // visiting path
-    public static $file;      // visit file path
-    public static $cacheName; // cache file name
-    public static $cachePath; // cache file path
+    /**
+     * 当前被访问路径
+     * @var string
+     */
+    public static $path;
+
+    /**
+     * 当前被访问文件
+     * @var string
+     */
+    public static $file;
+
+    /**
+     * 当前被访问文件缓存
+     * @var string
+     */
+    public static $cacheName;
+
+    /**
+     * 当前被访问缓存路径
+     * @var string
+     */
+    public static $cachePath;
 
     public function run()
     {
         static::init();
         if(!file_exists(self::$file)) throw new Exception('路由不存在，路径['.self::$file.']',404);
         if(Config::get('api','autoload')) $this->start();
-        if(file_exists(self::$path.'__begin.php')) require self::$path.'__begin.php';
 
-        /** 暂时不知道用在哪，先放在这里
-         *   if(!file_exists(self::$cachePath)){
-         *       static::mk_cache();
-         *   } else {
-         *       // 通过修改时间判断源文件是否更新
-         *       // 生产环境下强烈建议注释掉该句
-         *       if(filemtime(self::$cachePath)<filemtime(self::$file)) static::up_cache();
-         *   }
-         *   require self::$cachePath;
-         */
+        if(Config::get('dove','cncode')){
+            // 中文编译缓存支持
+            // TODO 使 __begin.php、__coda.php 支持中文编译
+            if(!file_exists(self::$cachePath)){
+                static::mk_cache();
+            } else {
+                // 通过修改时间判断源文件是否更新，生产环境下强烈建议注释掉该句
+                if(filemtime(self::$cachePath)<filemtime(self::$file)) static::up_cache();
+            }
+
+            require self::$cachePath;
+            return;
+        }
+
+        if(file_exists(self::$path.'__begin.php')) require self::$path.'__begin.php';
         require self::$file;
         if(file_exists(self::$path.'__coda.php')) require self::$path.'__coda.php';
         return;
@@ -50,6 +76,7 @@ class App extends Api
          * 2.是否是起始或结束自动加载文件
          * 3.这个方法只进行多级目录检查，但对性能影响可能会有点大，观察一下
          */
+        // TODO 解决判断重复的问题
         if(in_array($baseUrlArr[1],$AClist['padlock'],true)||in_array($pathinfo['filename'],['__begin','__coda'],true)||in_array(preg_replace("/^\/+?|\/+?$/",'',$baseUrl),$AClist['padlock'],true)) {
 			throw new Exception('目录或文件['.$baseUrlArr[1].']已被设置为禁止外部访问或为起始、结束文件!',403);
 		}

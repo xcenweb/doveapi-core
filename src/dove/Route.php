@@ -1,6 +1,10 @@
 <?php 
 declare(strict_types=1);
 namespace dove;
+
+/**
+ * DoveAPI框架路由支持
+ */
 class Route
 {
     // 获取当前带 QUERY_STRING 的url

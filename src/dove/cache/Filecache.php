@@ -5,6 +5,10 @@ use dove\Config;
 
 class Filecache {
 
+    public $path;
+    public $suffix;
+    public $compress_level;
+
     function __construct()
     {
         $c = Config::get('cache','file');
@@ -96,7 +100,7 @@ class Filecache {
             if ($dir != '.' && $dir != '..') {
                 $sonDir = $this->path.'/'.$dir;
                 if(is_dir($sonDir)){
-                    $this->clear($sonDir);
+                    $this->clean($sonDir);
                     @rmdir($sonDir);
                 } else {
                     @unlink($sonDir);

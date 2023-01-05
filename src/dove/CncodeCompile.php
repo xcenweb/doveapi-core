@@ -1,9 +1,18 @@
 <?php 
 namespace dove;
-// DoveAPI中文语法编译支持
+
+/**
+ * DoveAPI中文语法编译支持
+ * @package dove
+ */ 
 class CncodeCompile
 {
-	// 编译器大心脏
+
+	/**
+	 * 开始编译并输出
+	 * @param string $v 中文代码
+	 * @return string 编译后代码
+	 */
 	public static function run($v = '')
 	{
 		$v = static::namespace($v);
@@ -36,6 +45,11 @@ class CncodeCompile
 		return preg_replace('/输出\s(.*)\s的类型(\;|\；)/', 'var_dump($1);', $v);
 	}
 
+	/**
+	 * 变量
+	 * @param string $v
+	 * @return string
+	 */
 	public static function value($v)
 	{
 		// @note 设置 变量a 的值为 xx;
@@ -51,7 +65,7 @@ class CncodeCompile
 	}
 
 	/**
-	 * echo 函数中文化
+	 * echo
 	 * @param string $v
 	 * @return string
 	 */

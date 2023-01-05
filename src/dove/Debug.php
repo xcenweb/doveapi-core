@@ -8,6 +8,10 @@ use dove\App;
 use dove\Route;
 use dove\Config;
 
+/**
+ * DoveAPI框架调试支持
+ * @package dove
+ */
 class Debug
 {
     public static $code; //error code
@@ -21,7 +25,7 @@ class Debug
         set_exception_handler(['\\dove\\Debug','exception']);
     }
     
-    // E_ALL error
+    // E_ALL error 抛错
     public static function error($level,$info,$file,$line)
     {
         self::$code = 500;
@@ -33,7 +37,7 @@ class Debug
         static::de();
     }
     
-    // catch exception
+    // 抓取 exception 并抛错
     public static function exception($e)
     {
         self::$code = $e->getCode();
@@ -43,13 +47,14 @@ class Debug
         static::de();
     }
 
+	// 抛错
     public static function de()
     {
         $debug = Config::get('dove','debug',false);
         $debug_mode = (Config::get('dove','debug_mode','page')=='page')?true:false;
 	    $debug_pe_mode = (Config::get('dove','pe_debug_mode','page')=='page')?true:false;
-        // if ajax request,response json text
         if(isset($_SERVER['HTTP_X_REQUESTED_WITH'])&&strtolower($_SERVER['HTTP_X_REQUESTED_WITH'])=='xmlhttprequest'){
+			// 如果是一个ajax请求，直接返回json
             Log::saveErr(self::$file,self::$info,'(ajax)');
             static::json(($debug)?Config::get('dove','debug_mode_json_path'):Config::get('dove','pe_debug_mode_json_path'));
         }
@@ -57,7 +62,7 @@ class Debug
         ($debug)?(($debug_mode)?static::page(Config::get('dove','debug_mode_page_path')):static::json(Config::get('dove','debug_mode_json_path'))):(($debug_pe_mode)?static::page(Config::get('dove','pe_debug_mode_page_path')):static::json(Config::get('dove','pe_debug_mode_json_path')));
     }
 
-    // output html page
+    // 输出标准html界面，加入模板变量
     public static function page($tpl)
     {
         $stack = '';
@@ -78,18 +83,21 @@ class Debug
 	    }
 	    $array = [
 	        'domain' => Route::domain(),
+			
 	        'err_code' => self::$code,
 	        'err_info' => self::$info,
 	        'err_file' => self::$file,
+
 	        'call_stack' => str_replace('\\','/',$stack),
 	        'get_array_list' => static::array_list($_GET),
 	        'post_array_list' => static::array_list($_POST),
 			'cookie_array_list' => static::array_list($_COOKIE),
 			'server_array_list' => static::array_list($_SERVER),
+
 	        'version' => DOVE_VERSION,
 	        'exitTime' => round(microtime(true)-DOVE_START_TIME,8),
 	    ];
-	    /** 中文语法报错支持再研究一下
+	    /** 中文语法报错支持 再研究一下
 	     *   if(empty(App::$file)){
 	     *       $uncf_content = '[File Not Found]';
 	     *   }else{
@@ -121,7 +129,7 @@ class Debug
         die(str_replace($value,$string,file_get_contents($tpl)));
     }
 
-    // output json text
+    // 输出标准json格式
     public static function json($tpl)
     {
         $stack = [];
@@ -151,12 +159,15 @@ class Debug
 	/**
 	 * 解析数组
 	 * @param array $array
+	 * @return string
 	 */
     public static function array_list($array){
         $return = '';
         foreach($array as $k => $v){
             if($v == '') $v = '<font color="red">NULL</font>';
 			if(is_numeric($v)) $v = '<font color="blue">'. $v .'</font>';
+			if($v == 'false') $v = '<font color="red">'. $v .'</font>';
+			if($v == 'true') $v = '<font color="green">'. $v .'</font>';
             $return .= "<b>$k</b> = $v<br>";
         }
         return empty($return)?'<font color="red">--Empty--</font>':$return;

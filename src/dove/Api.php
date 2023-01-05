@@ -6,6 +6,10 @@ use Exception;
 use dove\config;
 use dove\tool\ArrToxml;
 
+/**
+ * API便捷操作
+ * @package dove
+ */
 class Api
 {
     public $started = false;
@@ -32,8 +36,7 @@ class Api
             isset($set['origin'])?header('Access-Control-Allow-Origin:'.$set['origin']):header('Access-Control-Allow-Origin:'.$this->config['origin']);
             isset($set['method'])?header('Access-Control-Allow-Methods:'.$set['methods']):header('Access-Control-Allow-Methods:'.$this->config['methods']);
             if(!empty($set)){
-                $h = isset($set['header'])?$this->config['header']+$set['header']:[];
-                set_header($h);
+                set_header(isset($set['header'])?$this->config['header']+$set['header']:[]);
                 set_ini(isset($set['ini'])?$this->config['ini']+$set['ini']:[]);
             }
             $this->started = true;
@@ -41,39 +44,64 @@ class Api
     }
 }
 
-// get post、get..
+/**
+ * 输入请求便捷操作
+ * @package dove
+ */
 class Request
 {
     public $request;
 
-    // 获取get
-    // $this->request->get('*',[]);
-    public function get($name='*',$def='')
+    /**
+     * 获取get
+     * $this->request->get('*',[]);
+     */
+    public function get($name = '*',$def = '')
     {
-        
+        if ('GET' == $_SERVER['REQUEST_METHOD']) {
+            if($name == '*') return $_GET;
+		    if($name == '') return isset(array_keys($_GET)[$name])?array_keys($_GET)[$name]:$def;
+            return $_GET[$name];
+        }
     }
-    
-    // 获取post
-    public function post($name='*',$def='')
+
+    /**
+     * 获取post
+     */
+    public function post($name = '*',$def = '')
     {
-        
+        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+            if($name == '*') return $_POST;
+		    if($name == '') return isset(array_keys($_POST)[$name])?array_keys($_POST)[$name]:$def;
+            return $_POST[$name];
+        }
     }
-    
-    // 获取put
-    public function put($name='*',$def='')
+
+    /**
+     * 获取put
+     */
+    public function put($name = '*',$def = '')
     {
-        
+        if ('PUT' == $_SERVER['REQUEST_METHOD']) {
+            parse_str(file_get_contents('php://input'),$_PUT);
+            if($name == '*') return $_PUT;
+		    if($name == '') return isset(array_keys($_PUT)[$name])?array_keys($_PUT)[$name]:$def;
+            return $_PUT[$name];
+        }
     }
-    
-    // 获取所有的
-    // return ["get"=>[],"post"=>[],"put"=>[]]
+
+    /**
+     * 获取所有的
+     * return ["get"=>[],"post"=>[],"put"=>[]]
+     */
     public function all()
     {
-        
+        return ['get'=>$_GET,'post'=>$_POST,'put'=>$this->put('*',[])];
     }
 }
 
 // api返回
+// TODO set_temps方法的实现，设置返回模板
 class Response
 {
     public $response;
@@ -86,13 +114,21 @@ class Response
         $this->uni = $config['response_uni'];
     }
 	
-	// set uni back content
-	public function set_uni($uni = 'void')
+	/** 
+	 * 改变统一返回形式
+	 * @param string $uni 返回形式
+	 * @return bool
+	 */
+	public function set_uni($uni = 'json')
 	{
 		$this->uni = $uni;
+		return true;
 	}
-	
-    // uni back content
+
+    /**
+	 * 统一返回内容
+	 * @return mixed
+	 */
     public function uni()
     {
         switch($this->uni){
@@ -114,36 +150,47 @@ class Response
         }
     }
 
-    // 输出json,输出后停止运行
-    // $this->response->json()
-    public function json($arr=[])
+    /**
+     * 输出json,输出后停止运行
+     * $this->response->json()
+     */
+    public function json($arr = [])
     {
-        ob_clean();
         header('Content-type: application/json;charset=utf-8');
         die(json_encode($arr,JSON_UNESCAPED_UNICODE));
     }
-    
-    // 输出xml,输出后停止运行
-    // $this->response->xml()
-    public function xml($arr=[])
+
+    /**
+     * 输出xml,输出后停止运行
+     * $this->response->xml()
+     */
+    public function xml($arr = [])
     {
-        ob_clean();
         header("Content-type: text/xml;charset=utf-8");
         die(ArrToxml::build($arr,'response'));
     }
-	
-	// 输出html，可选择压缩html
-    public function html($html,$zip=false)
+
+    /**
+     * 输出html，可选择压缩html
+     */
+    public function html($html, $zip = false)
     {
-        ob_clean();
-		
-        die($html);
+		if($zip){
+			$html = str_replace("\r\n", '', $html);
+		    $html = str_replace("\n", '', $html);
+		    $html = str_replace("\t", '', $html);
+		    $pattern = ["/> *([^ ]*) *</","/[\s]+/","/<!--[^!]*-->/","/\" /","/ \"/","'/\*[^*]*\*/'"];
+	        $replace = [">\\1<"," ","", "\"","\"",""];
+            die(preg_replace($pattern, $replace,$html));
+		}
+		die($html);
     }
-	
-	// 输出空值
+
+    /**
+     * 输出空值
+     */
     public function void()
     {
-        ob_clean();
         header('HTTP/1.1 204 No Content');
         exit;
     }
@@ -158,12 +205,12 @@ class Response
      */
     public function mxml()
     {
-        if(func_num_args()==0) throw new Exception('$this->response->mxml() 参数不能为空',500);
+        if(func_num_args() == 0) throw new Exception('$this->response->mxml() 参数不能为空',500);
         $this->xml($this->get_temp(func_num_args(),func_get_args()));
     }
 
     /**
-     * 模板输出json。输出后停止运行
+     * 模板输出json,输出后停止运行
      * 
      * 模板示例 true => ['code'=>'int','msg'=>'text','data'=>'array']
      * 使用示例 $this->response->mjson(true,200,'值二',['值三','值四']);
@@ -172,12 +219,14 @@ class Response
      */
     public function mjson()
     {
-        if(func_num_args()==0) throw new Exception('$this->response->mjson() 参数不能为空',500);
+        if(func_num_args() == 0) throw new Exception('$this->response->mjson() 参数不能为空',500);
         $this->json($this->get_temp(func_num_args(),func_get_args()));
     }
 
-    // get a template
-    public function get_temp($arg,$args)
+    /**
+     * 获取模板
+     */
+    public function get_temp($arg, $args)
     {
         if(!isset($this->temps[$args[0]])) return [];
         $temp  = $this->temps[$args[0]];

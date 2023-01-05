@@ -6,9 +6,10 @@ use dove\Config;
 class Memcache {
 
     public $conn;
+    public static $config = [];
     
     function __construct($keep=false){
-        self::self::$config = Config::get('cache','memcache');
+        self::$config = Config::get('cache','memcache');
         $this->conn = ($keep)?memcache_pconnect(self::$config['host'],self::$config['port']):memcache_connect(self::$config['host'],self::$config['port']);
         if(self::$config['auto_compress']) memcache_set_compress_threshold($this->conn,self::$config['threshold'],self::$config['min_saving']);
     }
