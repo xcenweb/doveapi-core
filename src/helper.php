@@ -167,3 +167,18 @@ function space_total($total = 0) {
 	}
 	return $total.'B';
 }
+
+/**
+ * 判断字符串是否是xml
+ * @param string $str 待判断内容
+ * @return bool|string
+ */
+function xml_parser($str){
+    $xml_parser = xml_parser_create();
+    if(!xml_parse($xml_parser,$str,true)){
+      xml_parser_free($xml_parser);
+      return false;
+    }else {
+      return (json_decode(json_encode(simplexml_load_string($str)),true));
+    }
+}

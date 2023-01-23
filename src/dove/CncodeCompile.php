@@ -88,7 +88,7 @@ class CncodeCompile
 	/** 
 	 * 判断给定字符串是否是一个数值或数组
 	 * @param string $str
-	 * @param bool
+	 * @return bool
 	 */
 	public static function is_int($str)
 	{
