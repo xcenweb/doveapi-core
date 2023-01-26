@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace dove\tool;
 
 use dove\Config;
-use dove\Debug;
+use Exception;
 
 class Filter
 {
@@ -24,7 +24,7 @@ class Filter
         self::initial();
         $n_rule = 1;
         foreach($array as $rule=>$strs){
-            if(!isset(self::$RULES[$rule])) Debug::e(500,"Filter:规则不存在！");
+            if(!isset(self::$RULES[$rule])) throw new Exception('Filter:规则不存在！',500);
             if(is_array($strs)){
                 // 一规则多字符验证
                 foreach($strs as $n_str=>$str){
@@ -35,7 +35,7 @@ class Filter
                 }
             } else {
                 // 一规则一字符验证
-                if(!preg_match(self::$RULES[$rule],strval($strs)) || $empty && $str=="" || $str==[]){
+                if(!preg_match(self::$RULES[$rule],strval($strs)) || $empty && $strs=="" || $strs==[]){
                     if($func) $func($n_rule,1,$rule,self::$RULES[$rule],$strs);
                     return false;
                 }
@@ -51,7 +51,7 @@ class Filter
         $rules = [];
         $tos = [];
         foreach($ruleTo as $rule=>$to){
-            $rule[] = $rule;
+            $rules[] = $rule;
             $tos[] = $to;
         }
         return preg_replace($rules,$tos,$str);

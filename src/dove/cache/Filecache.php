@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace dove\cache;
 use dove\Config;
-
+// TODO 修复缓存时间无效的问题
 class Filecache {
 
     public $path;
@@ -28,6 +28,9 @@ class Filecache {
     public function set($key, $value = '', $exp = 0){
         $f = $this->path.$key.$this->suffix;
         file_put_contents($f,gzcompress(strval(is_array($value)?serialize($value):$value),$this->compress_level));
+        if($exp == 0){
+            return touch($f,-28800);
+        }
         return touch($f,time()+$exp);
     }
 

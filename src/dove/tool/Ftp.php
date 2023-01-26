@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 namespace dove\tool;
+
+use Exception;
 use dove\Debug;
+
 /**
  * 仿写CodeIgniter的FTP类
  * FTP基本操作：
@@ -44,11 +47,11 @@ class Ftp {
 	public function connect($config = []){
 		if(count($config) > 0) $this->_init($config);
 		if(false === ($this->conn_id = @ftp_connect($this->hostname,$this->port))){
-		    Debug::e(500,'ftp:连接失败');
+			throw new Exception('ftp:连接失败',500);
 		    return false;
 		}
 		if(!$this->_login()){
-		    Debug::e(500,'ftp:登录失败');
+			throw new Exception('ftp:登录失败',500);
 		    return false;
 		}
 		if($this->passive === true) ftp_pasv($this->conn_id,true);
@@ -111,7 +114,7 @@ class Ftp {
 	public function upload($localpath, $remotepath, $mode = 'auto', $permissions = null) {
 		if(!$this->_isconn()) return false;
 		if(!file_exists($localpath)){
-		    Debug::e(500,'ftp:没有文件来源['.$localpath.']');
+			throw new Exception('ftp:没有文件来源['.$localpath.']',500);
 			return false;
 		}
 		if($mode == 'auto'){
@@ -167,10 +170,6 @@ class Ftp {
 		if(!$this->_isconn()) return false;
 		$result = @ftp_rename($this->conn_id, $oldname, $newname);
 		if($result === false) {
-			if($this->debug === true) {
-				$msg = ($move == false) ? "ftp:文件重命名失败" : "ftp:文件移动失败";
-				Debug::e(500,$msg);
-			}
 			return false;
 		}
 		return true;
@@ -187,9 +186,6 @@ class Ftp {
 		if(!$this->_isconn()) return false;
 		$result = @ftp_delete($this->conn_id, $file);
 		if($result === false) {
-			if($this->debug === true) {
-			    Debug::e(500,'ftp:删除文件失败['.$file.']');
-			}
 			return false;
 		}
 		return true;
@@ -304,7 +300,7 @@ class Ftp {
 	 */
 	private function _isconn() {
 		if(!is_resource($this->conn_id)) {
-			Debug::e(500,'ftp:连接失败！');
+			throw new Exception('ftp:连接失败！',500);
 			return false;
 		}
 		return true;
