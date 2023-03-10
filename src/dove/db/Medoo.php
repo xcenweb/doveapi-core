@@ -1,29 +1,26 @@
 <?php
-// TODO 更新 Medoo 版本
+
 declare(strict_types=1);
 /**
  * Medoo Database Framework.
  *
  * The Lightweight PHP Database Framework to Accelerate Development.
  *
- * @version 2.1.4
+ * @version 2.1.8
  * @author Angel Lai
  * @package Medoo
- * @copyright Copyright 2021 Medoo Project, Angel Lai.
+ * @copyright Copyright 2023 Medoo Project, Angel Lai.
  * @license https://opensource.org/licenses/MIT
  * @link https://medoo.in
  */
 
-namespace dove\db;
+namespace Medoo;
 
 use PDO;
 use Exception;
-use dove\Config;
 use PDOException;
 use PDOStatement;
-use dove\tool\Str;
 use InvalidArgumentException;
-
 
 /**
  * The Medoo raw object.
@@ -108,7 +105,7 @@ class Medoo
     protected $logs = [];
 
     /**
-     * Determine should log or not.
+     * Determine should log the query or not.
      *
      * @var bool
      */
@@ -122,7 +119,7 @@ class Medoo
     protected $testMode = false;
 
     /**
-     * The query string last generated in test mode.
+     * The last query string was generated in test mode.
      *
      * @var string
      */
@@ -136,7 +133,7 @@ class Medoo
     protected $debugMode = false;
 
     /**
-     * Determine should saving debug logging.
+     * Determine should save debug logging.
      *
      * @var bool
      */
@@ -179,36 +176,65 @@ class Medoo
 
     /**
      * Connect the database.
+     *
+     * ```
+     * $database = new Medoo([
+     *      // required
+     *      'type' => 'mysql',
+     *      'database' => 'name',
+     *      'host' => 'localhost',
+     *      'username' => 'your_username',
+     *      'password' => 'your_password',
+     *
+     *      // [optional]
+     *      'charset' => 'utf8mb4',
+     *      'port' => 3306,
+     *      'prefix' => 'PREFIX_'
+     * ]);
+     * ```
+     *
      * @param array $options Connection options
      * @return Medoo
      * @throws PDOException
      * @link https://medoo.in/api/new
      * @codeCoverageIgnore
-     *
-     * DoveAPI修改：config::get作为连接内容
      */
-    public function __construct($options)
+
+    public function __construct(array $options)
     {
-        if(is_string($options)) $options= Config::get('db',Str::ic_right($options,'使用配置>>'));
-        if (isset($options['prefix'])) $this->prefix = $options['prefix'];
+        if (isset($options['prefix'])) {
+            $this->prefix = $options['prefix'];
+        }
+
         if (isset($options['testMode']) && $options['testMode'] == true) {
             $this->testMode = true;
             return;
         }
+
         $options['type'] = $options['type'] ?? $options['database_type'];
+
         if (!isset($options['pdo'])) {
             $options['database'] = $options['database'] ?? $options['database_name'];
-            if (!isset($options['socket'])) $options['host'] = $options['host'] ?? $options['server'] ?? false;
+
+            if (!isset($options['socket'])) {
+                $options['host'] = $options['host'] ?? $options['server'] ?? false;
+            }
         }
 
         if (isset($options['type'])) {
             $this->type = strtolower($options['type']);
-            if ($this->type === 'mariadb') $this->type = 'mysql';
+
+            if ($this->type === 'mariadb') {
+                $this->type = 'mysql';
+            }
         }
 
-        if (isset($options['logging']) && is_bool($options['logging'])) $this->logging = $options['logging'];
+        if (isset($options['logging']) && is_bool($options['logging'])) {
+            $this->logging = $options['logging'];
+        }
+
         $option = $options['option'] ?? [];
-        $commands = (isset($options['command']) && is_array($options['command']))?$options['command']:[];
+        $commands = [];
 
         switch ($this->type) {
 
@@ -441,6 +467,10 @@ class Medoo
                 );
             }
 
+            if (isset($options['command']) && is_array($options['command'])) {
+                $commands = array_merge($commands, $options['command']);
+            }
+
             foreach ($commands as $value) {
                 $this->pdo->exec($value);
             }
@@ -450,7 +480,7 @@ class Medoo
     }
 
     /**
-     * Generate a new map key for placeholder.
+     * Generate a new map key for the placeholder.
      *
      * @return string
      */
@@ -631,7 +661,7 @@ class Medoo
         }
 
         $query = preg_replace_callback(
-            '/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(([\p{L}_][\p{L}\p{N}@$#\-_]*)(\.[\p{L}_][\p{L}\p{N}@$#\-_]*)?)\>([^,]*?\2)?/u',
+            '/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN|TABLE IF EXISTS)\s*)?\<(([\p{L}_][\p{L}\p{N}@$#\-_]*)(\.[\p{L}_][\p{L}\p{N}@$#\-_]*)?)\>([^,]*?\2)?/u',
             function ($matches) {
                 if (!empty($matches[2]) && isset($matches[8])) {
                     return $matches[0];
@@ -802,7 +832,7 @@ class Medoo
     }
 
     /**
-     * Implode where conditions.
+     * Implode the Where conditions.
      *
      * @param array $data
      * @param array $map
@@ -837,7 +867,7 @@ class Medoo
             $operator = $match['operator'] ?? null;
 
             if ($isIndex && isset($match[4]) && in_array($operator, ['>', '>=', '<', '<=', '=', '!='])) {
-                $stack[] = "${column} ${operator} " . $this->columnQuote($match[4]);
+                $stack[] = "{$column} {$operator} " . $this->columnQuote($match[4]);
                 continue;
             }
 
@@ -1200,7 +1230,7 @@ class Medoo
     }
 
     /**
-     * Determine the array is with join syntax.
+     * Determine the array with join syntax.
      *
      * @param mixed $join
      * @return bool
@@ -1288,7 +1318,7 @@ class Medoo
                 $tableName .= ' AS ' . $this->tableQuote($match['alias']);
             }
 
-            $tableJoin[] = $type[$match['join']] . " JOIN ${tableName} ${relation}";
+            $tableJoin[] = $type[$match['join']] . " JOIN {$tableName} {$relation}";
         }
 
         return implode(' ', $tableJoin);
@@ -1536,7 +1566,7 @@ class Medoo
      */
     public function drop(string $table): ?PDOStatement
     {
-        return $this->exec('DROP TABLE IF EXISTS ' . $this->tableQuote($this->prefix . $table));
+        return $this->exec('DROP TABLE IF EXISTS ' . $this->tableQuote($table));
     }
 
     /**
@@ -2195,7 +2225,11 @@ class Medoo
         ];
 
         foreach ($output as $key => $value) {
-            $output[$key] = @$this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
+            try {
+                $output[$key] = $this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
+            } catch (PDOException $e) {
+                $output[$key] = $e->getMessage();
+            }
         }
 
         $output['dsn'] = $this->dsn;

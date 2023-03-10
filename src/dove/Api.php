@@ -15,7 +15,16 @@ class Api
     public $started = false;
     public $config;
 
+    /**
+     * request class
+     * @var class
+     */
     public $request;
+
+    /**
+     * response class
+     * @var class
+     */
     public $response;
 
     // autoload
@@ -101,7 +110,6 @@ class Request
 }
 
 // api返回
-// TODO set_temps方法的实现，设置返回模板
 class Response
 {
     public $response;
@@ -124,6 +132,14 @@ class Response
 		$this->uni = $uni;
 		return true;
 	}
+
+    /**
+     * 覆盖设置模板
+     */
+    public function set_temps($temps = [])
+    {
+        $this->temps = $temps;
+    }
 
     /**
 	 * 统一返回内容

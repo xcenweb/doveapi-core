@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace dove\cache;
 use dove\Config;
-// TODO 修复缓存时间无效的问题
+
 class Filecache {
 
     public $path;
@@ -25,6 +25,7 @@ class Filecache {
 	 * @param int $exp 缓存时间，0为永久
 	 * @return bool
 	 */
+    // FIXME 缓存时间无效的问题
     public function set($key, $value = '', $exp = 0){
         $f = $this->path.$key.$this->suffix;
         file_put_contents($f,gzcompress(strval(is_array($value)?serialize($value):$value),$this->compress_level));
@@ -111,5 +112,38 @@ class Filecache {
             }
         }
         return true;
+    }
+
+    /**
+     * 写入缓存,如果该文件已经存在则不改变文件时间写入
+     * @param string $tag 标签
+     * @param mixed $content 值
+     * @param int $time 指定文件时间，默认当前时间戳
+     * @return string
+     */
+    private function write($tag = '',$value = '',$time = 0)
+    {
+        $file = $this->path.$tag.$this->suffix;
+        if($time == 0) $time = time();
+        // 压缩内容，数组自动序列化
+        $value = gzcompress(strval(is_array($value) ? serialize($value) : $value), $this->compress_level);
+        if(file_exists($file)){
+            // 缓存文件存在
+        }
+    }
+
+    /**
+     * 读取缓存
+     * @param string $tag 标签
+     * @param string $key 标记
+     * @return string
+     */
+    private function read($tag = '',$key = '')
+    {
+        $file = $this->path.$tag.$this->suffix;
+        // 读取并解压内容，数组自动去序列化
+        $data = gzuncompress(file_get_contents($file));
+        // TODO 若值全为数字 => intval()
+        return (preg_match("/^a\:[0-9]\:\{.*\}/",$data) == 1) ? unserialize($data) : $data;
     }
 }

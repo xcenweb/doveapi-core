@@ -10,6 +10,7 @@
  *
  */
 use dove\Config;
+use dove\Api;
 
 /**
  * 获取配置
@@ -139,19 +140,26 @@ function M($m_n,$def = '')
     $m_n = explode('.',$m_n);
     $m = isset($m_n[0])?$m_n[0]:'r';
     $n = isset($m_n[1])?$m_n[1]:'*';
-    if($m == "get"||$m == "g"){
+    if($m == 'get'||$m == 'g'){
+        // get
         if($n == '*') return $_GET;
 		if($n == '') return isset(array_keys($_GET)[0])?array_keys($_GET)[0]:$def;
         return isset($_GET[$n])?$_GET[$n]:$def;
-    } elseif ($m == "post"||$m == "p"){
+    } elseif ($m == 'post'||$m == 'p'){
+        // post
         if($n == '*') return $_POST;
 		if($n == '') return isset(array_keys($_POST)[0])?array_keys($_POST)[0]:$def;
         return isset($_POST[$n])?$_POST[$n]:$def;
-    } elseif ($m == "request"||$m == "r"){
+    } elseif ($m == 'request'||$m == 'r'){
+        // post&get
         if($n == '*') return $_REQUEST;
         return isset($_REQUEST[$n])?$_REQUEST[$n]:$def;
+    } elseif ($m == 'put' || $m == 'pu'){
+        // put
+        $_PUT = (new Api)->request->put('*', null);
+        if($n == '*') return $_PUT;
+        return isset($_PUT[$n])?$_PUT[$n]:$def;
     }
-    // TODO put方法支持
     return $def;
 }
 

@@ -70,4 +70,14 @@ class Config
 		}
         return self::$_config[$name] = require $f;
     }
+
+    /**
+     * TODO 配置文件产生
+     * @param string $name 配置文件名称
+     * @param string $config_arr 配置文件内容
+     */
+    public static function create($name = '', $config_arr = "<?php\nreturn [];")
+    {
+        return file_put_content(DOVE_CONFIG_DIR.$name.'.php', $config_arr);
+    }
 }

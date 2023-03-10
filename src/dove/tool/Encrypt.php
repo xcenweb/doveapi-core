@@ -26,7 +26,7 @@ class Encrypt
     }
     
     /**
-     * md5解密，彩虹表查询，咕一段时间
+     * TODO md5解密，彩虹表查询，咕一段时间
      * @parma $string md5加密字符
      * @return mixed
      */
@@ -44,7 +44,7 @@ class Encrypt
      */
     public static function mcrypted_encode($string,$key='',$expiry=0){
 		$ckeyLength = 4;
-		$key = md5($key ? $key : self::$default_key);
+		$key = md5($key);
 		$keya = md5(substr($key, 0, 16));
 		$keyb = md5(substr($key, 16, 16));
 		$keyc = substr(md5(microtime()), - $ckeyLength);
@@ -89,7 +89,7 @@ class Encrypt
 	{
 		$string = str_replace(['-','_','.'],['+','/','='], $string);
 		$ckeyLength = 4;
-		$key = md5($key ? $key : self::$default_key); //解密密匙
+		$key = md5($key); //解密密匙
 		$keya = md5(substr($key, 0, 16));		 //做数据完整性验证  
 		$keyb = md5(substr($key, 16, 16));		 //用于变化生成的密文 (初始化向量IV)
 		$keyc = substr($string, 0, $ckeyLength);
