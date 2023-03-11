@@ -1,6 +1,7 @@
 <?php
-
 declare(strict_types=1);
+namespace dove\db;
+
 /**
  * Medoo Database Framework.
  *
@@ -13,8 +14,6 @@ declare(strict_types=1);
  * @license https://opensource.org/licenses/MIT
  * @link https://medoo.in
  */
-
-namespace Medoo;
 
 use PDO;
 use Exception;
