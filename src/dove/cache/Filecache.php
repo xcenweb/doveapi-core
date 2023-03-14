@@ -5,79 +5,65 @@ use dove\Config;
 
 class Filecache {
 
+    /**
+     * 缓存文件根目录
+     * @var string
+     */
     public $path;
+
+    /**
+     * 缓存文件后缀名
+     * @var string
+     */
     public $suffix;
+
+    /**
+     * 压缩等级
+     * @var int
+     */
     public $compress_level;
 
     function __construct()
     {
-        $c = Config::get('cache','file');
-        $this->path = $c['path'];
-        $this->suffix = $c['suffix'];
-        $this->compress_level = $c['compress_level'];
+        $config = Config::get('cache', 'file');
+        $this->path = $config['path'];
+        $this->suffix = $config['suffix'];
+        $this->compress_level = $config['compress_level'];
         return true;
-    }
-
-    /**
-	 * 设置缓存，数组自动序列化
-	 * @param string $key 标记
-	 * @param mixed $value 缓存值
-	 * @param int $exp 缓存时间，0为永久
-	 * @return bool
-	 */
-    // FIXME 缓存时间无效的问题
-    public function set($key, $value = '', $exp = 0){
-        $f = $this->path.$key.$this->suffix;
-        file_put_contents($f,gzcompress(strval(is_array($value)?serialize($value):$value),$this->compress_level));
-        if($exp == 0){
-            return touch($f,-28800);
-        }
-        return touch($f,time()+$exp);
-    }
-
-	/**
-	 * 读取缓存，数组自动去序列化
-	 * @param string $key 标记
-	 * @param bool $delp 过期是否返回值
-	 * @return mixed
-	 */
-    public function get($key, $delp = false){
-        $f = $this->path.$key.$this->suffix;
-        if(!file_exists($f)) return false;
-        $data = gzuncompress(file_get_contents($f));
-        if(filemtime($f) < time()){
-            unlink($f);
-            if(!$delp) return false;
-        }
-        return (preg_match("/^a\:[0-9]\:\{.*\}/",$data)==1)?unserialize($data):$data;
     }
 
     /**
 	 * 数值自增，返回自增后的值
 	 * @param string $key 标记
 	 * @param int $int 自增数
-	 * @return int
+	 * @return int|bool 自增后的值
 	 */ 
-    public function inc($key, $int = 1){
-        $f = $this->path.$key.$this->suffix;
-        if(!file_exists($f)) return false;
-        $int = intval(gzuncompress(file_get_contents($f)))+$int;
-        file_put_contents($f,gzcompress(strval($int),$this->compress_level));
-        return $int;
+    public function inc($key, $plus = 1){
+        $data = $this->get($key, true);
+        if ($data) {
+            $time = $data['time'];
+            $exp = $data['exp'];
+            $int = intval($data['value']) + $plus;
+            return ($this->set($key, $int, $exp, $time)) ? $int : false;
+        }
+        return false;
     }
 
 	/**
 	 * 数值自减，返回自减后的值
 	 * @param string $key 标记
 	 * @param int $int 自减数
-	 * @return int
+	 * @return int|bool 自减后的值
 	 */
-    public function dec($key, $int = 1){
-        $f = $this->path.$key.$this->suffix;
-        if(!file_exists($f)) return false;
-        $int = intval(gzuncompress(file_get_contents($f)))-$int;
-        file_put_contents($f,gzcompress(strval($int),$this->compress_level));
-        return $int;
+    public function dec($key, $dec = 1) {
+        $data = $this->get($key, true);
+        if ($data) {
+            $time = $data['time'];
+            $exp = $data['exp'];
+            $int = intval($data['value']) - $dec;
+            return ($this->set($key, $int, $exp, $time)) ? $int : false;
+        }
+        return false;
     }
 
 	/**
@@ -86,10 +72,10 @@ class Filecache {
 	 */
     public function del(){
         $keys = func_get_args();
-        foreach($keys as $key){
-            $f = $this->path.$key.$this->suffix;
-            if(!file_exists($f)) continue;
-            unlink($f);
+        foreach ($keys as $key) {
+            $file = $this->path . $key . $this->suffix;
+            if(!file_exists($file)) continue;
+            unlink($file);
         }
         return true;
     }
@@ -115,35 +101,40 @@ class Filecache {
     }
 
     /**
-     * 写入缓存,如果该文件已经存在则不改变文件时间写入
-     * @param string $tag 标签
-     * @param mixed $content 值
-     * @param int $time 指定文件时间，默认当前时间戳
-     * @return string
+     * 写入缓存
+     * @param string $key 标签
+     * @param mixed $value 值
+     * @param int $exp 缓存有效期，0为永久
+     * @param int $time 缓存文件创建时间戳
+     * @return bool
      */
-    private function write($tag = '',$value = '',$time = 0)
+    public function set($key = '', $value = '', $exp = 0, $time = null)
     {
-        $file = $this->path.$tag.$this->suffix;
-        if($time == 0) $time = time();
-        // 压缩内容，数组自动序列化
-        $value = gzcompress(strval(is_array($value) ? serialize($value) : $value), $this->compress_level);
-        if(file_exists($file)){
-            // 缓存文件存在
-        }
+        // 缓存文件路径
+        $file = $this->path . $key . $this->suffix;
+        return file_put_contents($file, gzcompress(serialize([
+            'time'  => (!$time) ? time() : $time,  // 创建时的时间戳
+            'exp'   => $exp,    // 有效期
+            'value' => $value,  // 内容
+        ]), $this->compress_level));
     }
 
     /**
      * 读取缓存
-     * @param string $tag 标签
-     * @param string $key 标记
-     * @return string
+     * @param string $key 标签
+     * @param bool $is_source 是否输出原始内容
+     * @return bool
      */
-    private function read($tag = '',$key = '')
+    public function get($key = '', $is_source = false)
     {
-        $file = $this->path.$tag.$this->suffix;
-        // 读取并解压内容，数组自动去序列化
-        $data = gzuncompress(file_get_contents($file));
-        // TODO 若值全为数字 => intval()
-        return (preg_match("/^a\:[0-9]\:\{.*\}/",$data) == 1) ? unserialize($data) : $data;
+        $file = $this->path . $key . $this->suffix;
+        if (file_exists($file)) {
+            $data = unserialize(gzuncompress(file_get_contents($file)));
+            if (intval($data['time'] + $data['exp']) > time() || $data['exp'] == 0) {
+                return (!$is_source) ? $data['value'] : $data;
+            }
+            unlink($file);
+        }
+        return false;
     }
 }
