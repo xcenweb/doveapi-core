@@ -1,9 +1,17 @@
 <?php
+
 declare(strict_types=1);
+
 namespace dove\cache;
+
 use dove\Config;
 
-class Filecache {
+/**
+ * 文件缓存类
+ * @package dove\cache
+ */
+class Filecache
+{
 
     /**
      * 缓存文件根目录
@@ -33,12 +41,13 @@ class Filecache {
     }
 
     /**
-	 * 数值自增，返回自增后的值
-	 * @param string $key 标记
-	 * @param int $int 自增数
-	 * @return int|bool 自增后的值
-	 */ 
-    public function inc($key, $plus = 1){
+     * 数值自增，返回自增后的值
+     * @param string $key 标记
+     * @param int $int 自增数
+     * @return int|bool 自增后的值
+     */
+    public function inc($key, $plus = 1)
+    {
         $data = $this->get($key, true);
         if ($data) {
             $time = $data['time'];
@@ -49,13 +58,14 @@ class Filecache {
         return false;
     }
 
-	/**
-	 * 数值自减，返回自减后的值
-	 * @param string $key 标记
-	 * @param int $int 自减数
-	 * @return int|bool 自减后的值
-	 */
-    public function dec($key, $dec = 1) {
+    /**
+     * 数值自减，返回自减后的值
+     * @param string $key 标记
+     * @param int $int 自减数
+     * @return int|bool 自减后的值
+     */
+    public function dec($key, $dec = 1)
+    {
         $data = $this->get($key, true);
         if ($data) {
             $time = $data['time'];
@@ -66,30 +76,32 @@ class Filecache {
         return false;
     }
 
-	/**
-	 * 删除缓存，可一次性删除多个
-	 * @return bool
-	 */
-    public function del(){
+    /**
+     * 删除缓存，可一次性删除多个
+     * @return bool
+     */
+    public function del()
+    {
         $keys = func_get_args();
         foreach ($keys as $key) {
             $file = $this->path . $key . $this->suffix;
-            if(!file_exists($file)) continue;
+            if (!file_exists($file)) continue;
             unlink($file);
         }
         return true;
     }
 
-	/**
-	 * 删除所有缓存，包括子目录
-	 * @return bool
-	 */
-    public function clean(){
+    /**
+     * 删除所有缓存，包括子目录
+     * @return bool
+     */
+    public function clean()
+    {
         $dirs = scandir($this->path);
         foreach ($dirs as $dir) {
             if ($dir != '.' && $dir != '..') {
-                $sonDir = $this->path.'/'.$dir;
-                if(is_dir($sonDir)){
+                $sonDir = $this->path . '/' . $dir;
+                if (is_dir($sonDir)) {
                     $this->clean($sonDir);
                     @rmdir($sonDir);
                 } else {

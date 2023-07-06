@@ -1,8 +1,13 @@
 <?php
+
 declare(strict_types=1);
-// 文件操作工具类
+
 namespace dove\tool;
 
+/**
+ * 文件操作工具类
+ * @package dove\tool
+ */
 class File
 {
     /**
@@ -13,15 +18,15 @@ class File
      * @param int $atime 设置访问时间。默认是当前系统时间
      * @return boolean
      */
-    public static function create_file($path,$over_write = false,$time = null,$atime = null)
+    public static function create_file($path, $over_write = false, $time = null, $atime = null)
     {
         $path = static::dir_replace($path);
         $time = empty($time) ? time() : $time;
         $atime = empty($atime) ? time() : $atime;
-        if(file_exists($path) && $over_write) static::unlink_file($path);
+        if (file_exists($path) && $over_write) static::unlink_file($path);
         $aimDir = dirname($path);
         static::create_dir($aimDir);
-        return touch($path,$time,$atime);
+        return touch($path, $time, $atime);
     }
 
     /**
@@ -29,10 +34,10 @@ class File
      * @param string $path
      * @return boolean
      */
-    public static function unlink_file($path) 
+    public static function unlink_file($path)
     {
         $path = static::dir_replace($path);
-        return file_exists($path)?unlink($path):false;
+        return file_exists($path) ? unlink($path) : false;
     }
 
     /**
@@ -41,11 +46,11 @@ class File
      * @param int $mode 权限
      * @return boolean
      */
-    public static function create_dir($dir = '',$mode = 0755)
+    public static function create_dir($dir = '', $mode = 0755)
     {
         return is_dir($dir) or (static::create_dir(dirname($dir)) and mkdir($dir, $mode));
     }
-    
+
     /**
      * 循环获取某目录中文件
      * @param string $path 目录路径
@@ -53,20 +58,20 @@ class File
      */
     public static function get_file_list($dir = '')
     {
-        if(is_dir($dir)){
+        if (is_dir($dir)) {
             $list = [];
             $arr = scandir($dir);
-            foreach($arr as $file){
-                if($file != '.' && $file != '..'){
-                    if(is_dir($dir.$file)) continue;
+            foreach ($arr as $file) {
+                if ($file != '.' && $file != '..') {
+                    if (is_dir($dir . $file)) continue;
                     $list[] = $file;
                 }
             }
             return $list;
-       }
-       return false;
+        }
+        return false;
     }
-    
+
     /**
      * 循环获取某目录中文件和子目录
      * @param string $path 目录路径
@@ -74,24 +79,24 @@ class File
      */
     public static function get_fileSubdir_list($dir = '')
     {
-        if(is_dir($dir)){
-		    $files = [];
-		    $child_dirs = scandir($dir);
-		    foreach($child_dirs as $child_dir){
-		    	if($child_dir != '.' && $child_dir != '..'){
-	    			if(is_dir($dir.'/'.$child_dir)){
-                        $files[$child_dir] = static::get_fileSubdir_list($dir.'/'.$child_dir);
-                    }else{
+        if (is_dir($dir)) {
+            $files = [];
+            $child_dirs = scandir($dir);
+            foreach ($child_dirs as $child_dir) {
+                if ($child_dir != '.' && $child_dir != '..') {
+                    if (is_dir($dir . '/' . $child_dir)) {
+                        $files[$child_dir] = static::get_fileSubdir_list($dir . '/' . $child_dir);
+                    } else {
                         $files[] = $child_dir;
                     }
-		    	}
-		    }
-		    return $files;
-	    }else{
-		    return $dir;
-	    }
+                }
+            }
+            return $files;
+        } else {
+            return $dir;
+        }
     }
-    
+
     /**
      * 替换相应的字符
      * @param string $path 路径
@@ -99,6 +104,6 @@ class File
      */
     public static function dir_replace($path = '')
     {
-        return str_replace('//','/',str_replace('\\','/',$path));
+        return str_replace('//', '/', str_replace('\\', '/', $path));
     }
 }

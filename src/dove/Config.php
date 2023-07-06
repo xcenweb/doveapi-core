@@ -1,7 +1,9 @@
-<?php 
+<?php
+
 declare(strict_types=1);
 
 namespace dove;
+
 use Exception;
 
 /**
@@ -29,15 +31,15 @@ class Config
      * @param mixed $def 默认的内容
      * @return mixed 配置内容
      */
-    public static function get($name,$con='*',$def='')
+    public static function get($name, $con = '*', $def = '')
     {
-        if(!isset(self::$_config[$name])) {
-			static::pull($name);
-		}
-        if($con == '*') {
-			return isset(self::$_config[$name])?self::$_config[$name]:[];
-		}
-        return isset(self::$_config[$name][$con])?self::$_config[$name][$con]:$def;
+        if (!isset(self::$_config[$name])) {
+            static::pull($name);
+        }
+        if ($con == '*') {
+            return isset(self::$_config[$name]) ? self::$_config[$name] : [];
+        }
+        return isset(self::$_config[$name][$con]) ? self::$_config[$name][$con] : $def;
     }
 
     /**
@@ -46,38 +48,38 @@ class Config
      * @param array 覆盖的内容
      * @return bool
      */
-    public static function set($name,$set = [])
+    public static function set($name, $set = [])
     {
-		if(isset(self::$_config[$name])) {
-			self::$_config[$name] = array_merge(self::$_config[$name], $set);
-		} else {
-			self::$_config[$name] = $set;
-		}
-		return true;
-    }
-    
-    /**
-     * 拉取配置
-     * @param string $name 配置文件名
-     * @return array 该配置文件全部内容
-     */
-    public static function pull($name)
-    {
-        // if(isset(self::$_config[$name])) return self::$_config[$name];
-        $f = DOVE_CONFIG_DIR.$name.self::$_ext;
-        if(!file_exists($f)) {
-			throw new Exception("配置文件 {$name} 不存在",500);
-		}
-        return self::$_config[$name] = require $f;
+        if (isset(self::$_config[$name])) {
+            self::$_config[$name] = array_merge(self::$_config[$name], $set);
+        } else {
+            self::$_config[$name] = $set;
+        }
+        return true;
     }
 
     /**
-     * TODO 配置文件产生
+     * 拉取配置
+     * @param string $clconfigaconfigss 配置文件名
+     * @return array 该配置文件全部内容
+     */
+    public static function pull($config)
+    {
+        $file = DOVE_CONFIG_DIR . $config . self::$_ext;
+        if (!file_exists($file)) {
+            throw new Exception("配置文件 {$config} 不存在", 500);
+        }
+        return self::$_config[$config] = require $file;
+    }
+
+    /**
+     * 配置文件产生
      * @param string $name 配置文件名称
      * @param string $config_arr 配置文件内容
      */
+    // TODO 此为预留方法，配合composer
     public static function create($name = '', $config_arr = "<?php\nreturn [];")
     {
-        return file_put_content(DOVE_CONFIG_DIR.$name.'.php', $config_arr);
+        return file_put_content(DOVE_CONFIG_DIR . $name . '.php', $config_arr);
     }
 }

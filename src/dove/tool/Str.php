@@ -1,9 +1,13 @@
 <?php
-declare(strict_types=1);
-//字符串操作助手类，部分代码来自互联网
-namespace dove\tool;
-use dove\Debug;
 
+declare(strict_types=1);
+
+namespace dove\tool;
+
+/**
+ * 字符串操作助手类，部分代码来自互联网
+ * @package dove\tool
+ */
 class Str
 {
     /**
@@ -53,7 +57,7 @@ class Str
      * @param integer $offset 偏移量
      * @return string
      */
-    public static function ic_right($str,$q,$offset = 0)
+    public static function ic_right($str, $q, $offset = 0)
     {
         return mb_substr($str, mb_strpos($str, $q, $offset) + mb_strlen($q), mb_strlen($str), 'UTF-8');
     }
@@ -65,9 +69,9 @@ class Str
      * @param string $end 结束字符串
      * @return string
      */
-    public static function ic_both($input,$start = '',$end = '')
+    public static function ic_both($input, $start = '', $end = '')
     {
-        return substr($input,strlen($start)+strpos($input,$start),(strlen($input)-strpos($input,$end))*(-1));
+        return substr($input, strlen($start) + strpos($input, $start), (strlen($input) - strpos($input, $end)) * (-1));
     }
 
     /**
@@ -77,9 +81,10 @@ class Str
      * @parma string $haystack 被搜索字符串
      * @return string
      */
-    public static function replace_once($needle,$replace,$haystack) {
+    public static function replace_once($needle, $replace, $haystack)
+    {
         $pos = strpos($haystack, $needle);
-        if($pos===false) return $haystack;
-        return substr_replace($haystack,$replace,$pos,strlen($needle));
+        if ($pos === false) return $haystack;
+        return substr_replace($haystack, $replace, $pos, strlen($needle));
     }
 }

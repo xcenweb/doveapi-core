@@ -1,10 +1,11 @@
-<?php 
+<?php
+
 namespace dove;
 
 /**
  * DoveAPI中文语法编译支持
  * @package dove
- */ 
+ */
 class CncodeCompile
 {
 
@@ -55,10 +56,10 @@ class CncodeCompile
 		// @note 设置 变量a 的值为 xx;
 		preg_match_all('/设置变量\s[a-zA-Z_]\s的值为\s([\s\S]*?)(\;|\；)/', $v, $array);
 		$i = 0;
-		foreach($array[0] as $code){
+		foreach ($array[0] as $code) {
 			// 截取变量名
 			$value_name = preg_replace('/设置变量\s([a-zA-Z_])\s(的值为)\s([\s\S]*?)(\;|\；)/', '$1', $code);
-			$v = static::is_int($array[1][$i]) ? str_replace($code, '$'.$value_name.' = '.$array[1][$i].';', $v) : str_replace($code, '$'.$value_name.' = "'.$array[1][$i].'";', $v);
+			$v = static::is_int($array[1][$i]) ? str_replace($code, '$' . $value_name . ' = ' . $array[1][$i] . ';', $v) : str_replace($code, '$' . $value_name . ' = "' . $array[1][$i] . '";', $v);
 			$i++;
 		}
 		return $v;
@@ -72,8 +73,8 @@ class CncodeCompile
 	public static function echo($v)
 	{
 		// @note 输出 xxx; -> Cncode::echo(xxx);
-		return static::to_cncode_func($v,'/输出\s([\s\S]*?)(\;|\；)/','Cncode::echo(',');');
-		
+		return static::to_cncode_func($v, '/输出\s([\s\S]*?)(\;|\；)/', 'Cncode::echo(', ');');
+
 		// preg_match_all('/输出\s([\s\S]*?)(\;|\；)/', $v, $array);
 		// $i = 0;
 		// foreach($array[0] as $code){
@@ -94,7 +95,7 @@ class CncodeCompile
 	{
 		return (preg_match('/^\d*$/', $str) || preg_match('/^(-?\d+)(.\d+)?$/', $str) || preg_match('/(^\[)[\s\S]*?(\]$)/', $str));
 	}
-	
+
 	/**
 	 * 替换目标中文代码为追加定义内容，非数值或数组值自动加上引号
 	 * @param mixed $old_val 待处理字符串
@@ -103,16 +104,16 @@ class CncodeCompile
 	 * @param string $t_end 追加后字符串
 	 * @return string
 	 */
-	public static function to_cncode_func($old_val,$rule,$t_front,$t_end)
+	public static function to_cncode_func($old_val, $rule, $t_front, $t_end)
 	{
 		preg_match_all($rule, $old_val, $array);
 		$i = 0;
-		foreach($array[0] as $code){
-			if(isset($array[1][$i])) {
-				if(static::is_int($array[1][$i])){
-					$old_val = str_replace($code, $t_front.$array[1][$i].$t_end, $old_val);
+		foreach ($array[0] as $code) {
+			if (isset($array[1][$i])) {
+				if (static::is_int($array[1][$i])) {
+					$old_val = str_replace($code, $t_front . $array[1][$i] . $t_end, $old_val);
 				} else {
-					$old_val = str_replace($code, $t_front.'"'.$array[1][$i].'"'.$t_end, $old_val);
+					$old_val = str_replace($code, $t_front . '"' . $array[1][$i] . '"' . $t_end, $old_val);
 				}
 			}
 			$i++;

@@ -62,7 +62,7 @@
       <div class="mdui-typo mdui-text-center">
         <hr>
 		运行耗时&nbsp;<font class="mdui-text-color-teal">{$exitTime}s</font>
-        <p><b><a class="mdui-text-color-teal" href="http://dove.xcenadmin.top/">DoveAPI V{$version}</a> - 极速上手，快速开发！</b></p>
+        <p><b><a class="mdui-text-color-teal" href="https://www.kancloud.cn/xucene/doveapi">DoveAPI V{$version}</a> - 极速上手，快速开发！</b></p>
       </div>
     </div>
   <script>

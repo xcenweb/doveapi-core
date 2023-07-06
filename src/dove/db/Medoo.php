@@ -9,7 +9,7 @@ namespace dove\db;
  *
  * @version 2.1.8
  * @author Angel Lai
- * @package Medoo
+ * @package dove\db
  * @copyright Copyright 2023 Medoo Project, Angel Lai.
  * @license https://opensource.org/licenses/MIT
  * @link https://medoo.in

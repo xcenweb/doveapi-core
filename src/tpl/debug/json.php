@@ -10,8 +10,8 @@ return [
 
         'get' => $_GET,
         'post' => $_POST,
-		'cookie' => $_COOKIE,
-		'server' => $_SERVER,
+        'cookie' => $_COOKIE,
+        'server' => $_SERVER,
     ],
     'DoveAPI' => DOVE_VERSION,
 ];

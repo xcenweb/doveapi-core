@@ -1,10 +1,12 @@
-<?php 
+<?php
+
 declare(strict_types=1);
+
 namespace dove;
 
 use Exception;
 use dove\config;
-use dove\tool\ArrToxml;
+use dove\tool\Arr;
 
 /**
  * API便捷操作
@@ -17,20 +19,20 @@ class Api
 
     /**
      * request class
-     * @var class
+     * @package Request
      */
     public $request;
 
     /**
      * response class
-     * @var class
+     * @package Response
      */
     public $response;
 
     // autoload
     function __construct()
     {
-        $this->config = Config::get('api','*');
+        $this->config = Config::get('api', '*');
 
         // create two tool class: $this->request->xx();
         $this->request = new Request();
@@ -38,15 +40,15 @@ class Api
     }
 
     // $this->start([...]); start
-    public function start($set=[])
+    public function start($set = [])
     {
         // if repeat is continue
-        if(!$this->started){
-            isset($set['origin'])?header('Access-Control-Allow-Origin:'.$set['origin']):header('Access-Control-Allow-Origin:'.$this->config['origin']);
-            isset($set['method'])?header('Access-Control-Allow-Methods:'.$set['methods']):header('Access-Control-Allow-Methods:'.$this->config['methods']);
-            if(!empty($set)){
-                set_header(isset($set['header'])?$this->config['header']+$set['header']:[]);
-                set_ini(isset($set['ini'])?$this->config['ini']+$set['ini']:[]);
+        if (!$this->started) {
+            isset($set['origin']) ? header('Access-Control-Allow-Origin:' . $set['origin']) : header('Access-Control-Allow-Origin:' . $this->config['origin']);
+            isset($set['method']) ? header('Access-Control-Allow-Methods:' . $set['methods']) : header('Access-Control-Allow-Methods:' . $this->config['methods']);
+            if (!empty($set)) {
+                set_header(isset($set['header']) ? $this->config['header'] + $set['header'] : []);
+                set_ini(isset($set['ini']) ? $this->config['ini'] + $set['ini'] : []);
             }
             $this->started = true;
         }
@@ -65,11 +67,11 @@ class Request
      * 获取get
      * $this->request->get('*',[]);
      */
-    public function get($name = '*',$def = '')
+    public function get($name = '*', $def = '')
     {
         if ('GET' == $_SERVER['REQUEST_METHOD']) {
-            if($name == '*') return $_GET;
-		    if($name == '') return isset(array_keys($_GET)[$name])?array_keys($_GET)[$name]:$def;
+            if ($name == '*') return $_GET;
+            if ($name == '') return isset(array_keys($_GET)[$name]) ? array_keys($_GET)[$name] : $def;
             return $_GET[$name];
         }
     }
@@ -77,11 +79,11 @@ class Request
     /**
      * 获取post
      */
-    public function post($name = '*',$def = '')
+    public function post($name = '*', $def = '')
     {
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
-            if($name == '*') return $_POST;
-		    if($name == '') return isset(array_keys($_POST)[$name])?array_keys($_POST)[$name]:$def;
+            if ($name == '*') return $_POST;
+            if ($name == '') return isset(array_keys($_POST)[$name]) ? array_keys($_POST)[$name] : $def;
             return $_POST[$name];
         }
     }
@@ -89,12 +91,12 @@ class Request
     /**
      * 获取put
      */
-    public function put($name = '*',$def = '')
+    public function put($name = '*', $def = '')
     {
         if ('PUT' == $_SERVER['REQUEST_METHOD']) {
-            parse_str(file_get_contents('php://input'),$_PUT);
-            if($name == '*') return $_PUT;
-		    if($name == '') return isset(array_keys($_PUT)[$name])?array_keys($_PUT)[$name]:$def;
+            parse_str(file_get_contents('php://input'), $_PUT);
+            if ($name == '*') return $_PUT;
+            if ($name == '') return isset(array_keys($_PUT)[$name]) ? array_keys($_PUT)[$name] : $def;
             return $_PUT[$name];
         }
     }
@@ -105,7 +107,7 @@ class Request
      */
     public function all()
     {
-        return ['get'=>$_GET,'post'=>$_POST,'put'=>$this->put('*',[])];
+        return ['get' => $_GET, 'post' => $_POST, 'put' => $this->put('*', [])];
     }
 }
 
@@ -121,17 +123,17 @@ class Response
         $this->temps = $config['response_temps'];
         $this->uni = $config['response_uni'];
     }
-	
-	/** 
-	 * 改变统一返回形式
-	 * @param string $uni 返回形式
-	 * @return bool
-	 */
-	public function set_uni($uni = 'json')
-	{
-		$this->uni = $uni;
-		return true;
-	}
+
+    /** 
+     * 改变统一返回形式
+     * @param string $uni 返回形式
+     * @return bool
+     */
+    public function set_uni($uni = 'json')
+    {
+        $this->uni = $uni;
+        return true;
+    }
 
     /**
      * 覆盖设置模板
@@ -142,12 +144,12 @@ class Response
     }
 
     /**
-	 * 统一返回内容
-	 * @return mixed
-	 */
+     * 统一返回内容
+     * @return mixed
+     */
     public function uni()
     {
-        switch($this->uni){
+        switch ($this->uni) {
             case 'json':
                 $this->json(func_get_arg(0));
                 break;
@@ -158,10 +160,10 @@ class Response
                 $this->void();
                 break;
             case 'mjson':
-                $this->json($this->get_temp(func_num_args(),func_get_args()));
+                $this->json($this->get_temp(func_num_args(), func_get_args()));
                 break;
             case 'mxml':
-                $this->xml($this->get_temp(func_num_args(),func_get_args()));
+                $this->xml($this->get_temp(func_num_args(), func_get_args()));
                 break;
         }
     }
@@ -173,7 +175,7 @@ class Response
     public function json($arr = [])
     {
         header('Content-type: application/json;charset=utf-8');
-        die(json_encode($arr,JSON_UNESCAPED_UNICODE));
+        die(json_encode($arr, JSON_UNESCAPED_UNICODE));
     }
 
     /**
@@ -182,8 +184,9 @@ class Response
      */
     public function xml($arr = [])
     {
+        // TODO 增加参数
         header("Content-type: text/xml;charset=utf-8");
-        die(ArrToxml::build($arr,'response'));
+        die(Arr::toxml($arr, 'response'));
     }
 
     /**
@@ -191,15 +194,17 @@ class Response
      */
     public function html($html, $zip = false)
     {
-		if($zip){
-			$html = str_replace("\r\n", '', $html);
-		    $html = str_replace("\n", '', $html);
-		    $html = str_replace("\t", '', $html);
-		    $pattern = ["/> *([^ ]*) *</","/[\s]+/","/<!--[^!]*-->/","/\" /","/ \"/","'/\*[^*]*\*/'"];
-	        $replace = [">\\1<"," ","", "\"","\"",""];
-            die(preg_replace($pattern, $replace,$html));
-		}
-		die($html);
+        if ($zip) {
+            $html = str_replace("\r\n", '', $html);
+            $html = str_replace("\n", '', $html);
+            $html = str_replace("\t", '', $html);
+            die(preg_replace([
+                "/> *([^ ]*) *</", "/[\s]+/", "/<!--[^!]*-->/", "/\" /", "/ \"/", "'/\*[^*]*\*/'"
+            ], [
+                ">\\1<", " ", "", "\"", "\"", ""
+            ], $html));
+        }
+        die($html);
     }
 
     /**
@@ -221,8 +226,8 @@ class Response
      */
     public function mxml()
     {
-        if(func_num_args() == 0) throw new Exception('$this->response->mxml() 参数不能为空',500);
-        $this->xml($this->get_temp(func_num_args(),func_get_args()));
+        if (func_num_args() == 0) throw new Exception('$this->response->mxml() 参数不能为空', 500);
+        $this->xml($this->get_temp(func_num_args(), func_get_args()));
     }
 
     /**
@@ -235,8 +240,8 @@ class Response
      */
     public function mjson()
     {
-        if(func_num_args() == 0) throw new Exception('$this->response->mjson() 参数不能为空',500);
-        $this->json($this->get_temp(func_num_args(),func_get_args()));
+        if (func_num_args() == 0) throw new Exception('$this->response->mjson() 参数不能为空', 500);
+        $this->json($this->get_temp(func_num_args(), func_get_args()));
     }
 
     /**
@@ -244,14 +249,14 @@ class Response
      */
     public function get_temp($arg, $args)
     {
-        if(!isset($this->temps[$args[0]])) return [];
+        if (!isset($this->temps[$args[0]])) return [];
         $temp  = $this->temps[$args[0]];
         $tempNum = count($temp);
         $i = 1;
         $array = [];
-        foreach($temp as $name=>$def){
-            if($tempNum < $i) break;
-            $array = isset($args[$i])?array_merge($array,[$name=>$args[$i]]):array_merge($array,[$name=>$def]);
+        foreach ($temp as $name => $def) {
+            if ($tempNum < $i) break;
+            $array = isset($args[$i]) ? array_merge($array, [$name => $args[$i]]) : array_merge($array, [$name => $def]);
             $i++;
         }
         return $array;

@@ -10,7 +10,7 @@ class Cncode {
 	{
 		if(is_array($v)){
 			print_r($v);
-		} else {
+		} else { 
 			echo $v;
 		}
 	}
