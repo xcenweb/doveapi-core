@@ -152,7 +152,11 @@ class Debug
 		} else {
 			// 目标文件存在，定位错误
 			$content = htmlspecialchars(file_get_contents(App::$file));
-			$array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>/' . str_replace(ROOT_DIR, '', App::$file) . '</small></div><pre><code>' . $content . '</code></pre>';
+			$array['mistake_file'] = '<div class="mdui-typo">
+									      <h3> 发生错误的文件 </h3>
+										  <small>/' . str_replace(ROOT_DIR, '', App::$file) . '</small>
+									  </div>
+									  <pre><code>' . $content . '</code></pre>';
 		}
 		
 		// 模板变量替换

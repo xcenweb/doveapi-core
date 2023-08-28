@@ -1,4 +1,5 @@
-<!-- doveapi框架友好debug页面 --><!doctype html>
+<!-- doveapi框架友好debug页面 -->
+<!doctype html>
 <html lang="zh-cmn-Hans"> 
   <head> 
     <meta charset="utf-8"> 
@@ -75,9 +76,9 @@
       function debug_search(keyword){
           var q = "php {$err_info}";
           if(keyword=="du"){
-              window.open("http://www.baidu.com/s?wd="+q+"&cl=3");
+              window.open("http://www.baidu.com/s?wd=" + q + "&cl=3");
           }else if(keyword=="gg"){
-              window.open("https://www.google.com/search?q="+q);
+              window.open("https://www.google.com/search?q=" + q);
           }else{
               return false;
           }
