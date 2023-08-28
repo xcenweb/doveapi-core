@@ -144,14 +144,18 @@ class Debug
 		 *   }
 		 *   $array['mistake_file'] = '<div class="mdui-row"><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 未编译文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$uncf_content.'</code></pre></div><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 编译后文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$cachePath).'</small></div><pre><code>'.$cf_content.'</code></pre></div></div>';
 		 */
-
-		if (empty(App::$file)) {
-			$content = '[404 File Not Found]';
+		
+		// 错误定位
+		if (empty(App::$file) || !file_exists(App::$file)) {
+			// 目标文件不存在，不定位
+			$array['mistake_file'] = '';
 		} else {
-			$content = file_exists(App::$file) ? htmlspecialchars(file_get_contents(App::$file)) : '[404 File Not Found]';
+			// 目标文件存在，定位错误
+			$content = htmlspecialchars(file_get_contents(App::$file));
+			$array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>/' . str_replace(ROOT_DIR, '', App::$file) . '</small></div><pre><code>' . $content . '</code></pre>';
 		}
 		
-		$array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>/' . str_replace(ROOT_DIR, '', App::$file) . '</small></div><pre><code>' . $content . '</code></pre>';
+		// 模板变量替换
 		$value = [];
 		$string = [];
 		foreach ($array as $val => $str) {
@@ -162,7 +166,6 @@ class Debug
 		ob_clean();
 
 		header('Content-type: text/html;charset=utf-8');
-
 		die(str_replace($value, $string, file_get_contents($tpl)));
 	}
 
