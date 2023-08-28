@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace dove;
 
 /**
- * DoveAPI框架路由支持
+ * DoveAPI 框架路由支持
  * @package dove
  */
 class Route

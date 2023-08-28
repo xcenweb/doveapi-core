@@ -9,7 +9,7 @@ use dove\config;
 use dove\tool\Arr;
 
 /**
- * API便捷操作
+ * DoveAPI 框架便捷操作Request、Response
  * @package dove
  */
 class Api

@@ -11,7 +11,7 @@ use dove\Config;
 use dove\CncodeCompile;
 
 /**
- * DoveAPI框架核心逻辑支持
+ * DoveAPI 框架核心逻辑支持
  * @package dove
  * @see Api
  */
