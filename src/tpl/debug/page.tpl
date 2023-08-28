@@ -22,11 +22,12 @@
       pre{position:relative;}.hljsln{display:block;margin-left:2.4em;padding-left:0.7em !important;}.hljsln::-webkit-scrollbar{height:15px;}.hljsln::-webkit-scrollbar-thumb{background:#666;}.hljsln::-webkit-scrollbar-thumb:hover{background:#797979;}.hljsln::-webkit-scrollbar-thumb:active{background:#949494;}.hljsln .ln-bg{position:absolute;z-index:1;top:0;left:0;width:2.4em;height:100%;background:#333;}.hljsln .ln-num{position:absolute;z-index:2;left:0;width:2.4em;height:1em;text-align:center;display:inline-block;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.hljsln .ln-num::before{color:#777;font-style:normal;font-weight:normal;content:attr(data-num);}.hljsln .ln-eof{display:inline-block;}
     </style>
   </head>
+
   <body>
     <div class="mdui-container">
       <div class="mdui-card mdui-color-red-400" style="margin-top:10px">
         <div class="mdui-card-content mdui-text-center">
-          这里是框架的<b>报错页面</b>，出现此页面时说明程序运行时出现问题，请阅读以下框架回调信息了解错误详情。<br>
+          这里是框架的<b>报错页面</b>，出现此页面时说明程序运行时出现问题，请阅读以下回调信息了解错误详情。<br>
           <hr>
           <b>请注意：生 产 环 境 中 必 须 关 闭 框 架 的 调 试 模 式！！！</b>
         </div>
@@ -36,8 +37,8 @@
         <h3> Error Info <small> 报错内容</small></h3>
         <pre>{$err_info}</pre>
         <div class="mdui-float-right">
-            <button onclick="debug_search('du');" class="mdui-btn mdui-btn-raised mdui-color-blue-accent">百度一下</button>
-            <button onclick="debug_search('gg');" class="mdui-btn mdui-btn-raised mdui-color-blue-accent">谷歌一下</button>
+          <button onclick="debug_search('du');" class="mdui-btn mdui-btn-raised mdui-color-blue-accent">百度一下</button>
+          <button onclick="debug_search('gg');" class="mdui-btn mdui-btn-raised mdui-color-blue-accent">谷歌一下</button>
         </div><br>
       </div>
 
@@ -48,22 +49,22 @@
 
       {$mistake_file}
 	  
-	  <div class="mdui-row">
-		<div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> GET </h3><pre>{$get_array_list}</pre></div></div>
+	    <div class="mdui-row">
+		    <div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> GET </h3><pre>{$get_array_list}</pre></div></div>
         <div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> POST </h3><pre>{$post_array_list}</pre></div></div>
-	  </div>
+	    </div>
 	  
-	  <div class="mdui-divider-dark mdui-hidden-xs-down" style="margin: 20px auto 15px 15px;"></div>
+	    <div class="mdui-divider-dark mdui-hidden-xs-down" style="margin: 20px auto 15px 15px;"></div>
 	  
-	  <div class="mdui-row">
-	    <div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> COOKIE </h3><pre>{$cookie_array_list}</pre></div></div>
-		<div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> SERVER </h3><pre>{$server_array_list}</pre></div></div>
-	  </div>
+	    <div class="mdui-row">
+	      <div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> COOKIE </h3><pre>{$cookie_array_list}</pre></div></div>
+		    <div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> SERVER </h3><pre>{$server_array_list}</pre></div></div>
+	    </div>
 	  
       <div class="mdui-typo mdui-text-center">
         <hr>
-		运行耗时&nbsp;<font class="mdui-text-color-teal">{$exitTime}s</font>
-        <p><b><a class="mdui-text-color-teal" href="https://www.kancloud.cn/xucene/doveapi">DoveAPI V{$version}</a> - 极速上手，快速开发！</b></p>
+		    运行耗时&nbsp;<font class="mdui-text-color-teal">{$exitTime}s</font>
+        <p><b><a class="mdui-text-color-teal" href="https://xcenweb.github.io/docs/doveapi/">DoveAPI V{$version}</a> - 极速上手，快速开发！</b></p>
       </div>
     </div>
   <script>
