@@ -8,45 +8,57 @@ use Exception;
 use dove\Route;
 
 /**
- * DoveAPI框架日志支持类
+ * DoveAPI 框架日志模块
+ * @package dove
  */
 class Log
 {
 
-    // 自定义log
-    public static function save($add = [], $path = 'unknown', $logname = 'unknown', $type = 'unknown')
+    /**
+     * 添加一条日志
+     */
+    public static function add($add = [], $type = 'NOTE')
     {
-        if (!Config::get('dove', 'save_log')) {
+        if (!Config::get('log', 'log_switch', true)) {
             return true;
         }
-        if (func_num_args() == 2) {
-            $perset = Config::get('dove', 'log_preset');
-            if (!isset($perset[$path])) {
-                throw new Exception("log:自定义预设[{$path}]不存在", 500);
-            }
-            $logname = isset($perset[$path][2]) ? $perset[$path][2] : 'unknown';
-            $type = isset($perset[$path][0]) ? $perset[$path][0] : 'unknown';
-            $path = isset($perset[$path][1]) ? $perset[$path][1] : 'unknown';
-        }
-        $text = "\r\n[{$type}][" . date('Y-m-d H:i:s') . '][' . get_ip() . "]\r\n-请求链接:" . Route::url(true) . "\r\n-加载时间:" . round(microtime(true) - DOVE_START_TIME, 8) . "\r\n";
-        foreach ($add as $k => $v) $text .= "-{$k}:{$v}\r\n";
-        return static::write($text, DOVE_RUNTIME_DIR . 'log/' . $path . '/', $logname . '.log');
+
+        // ['a'=>123] -> a: 123
+        $content = "\r\n[{$type}][" . date('Y-m-d H:i:s') . '][' . get_ip() . ']';
+        $content .= "\r\n-请求链接: " . Route::url(true);
+        $content .= "\r\n-加载时间: " . round(microtime(true) - DOVE_START_TIME, 8) . "(s)\r\n";
+        foreach ($add as $name => $value) $content .= "-{$name}: {$value}\r\n";
+
+        return static::write($content, DOVE_RUNTIME_DIR.'log/'.date('Ym'), date('d').'.log');
     }
 
-    // 错误log
-    public static function saveErr($errFile = '未知', $errInfo = '未知', $remarks = '无')
+    /**
+     * 针对Debug模块的日志记录方法
+     */
+    public static function debug($errFile = 'null', $errInfo = 'null', $remarks = 'false')
     {
-        if (!Config::get('dove', 'error_log')) {
+        if (!Config::get('dove', 'debug_log') || !Config::get('log', 'log_switch', true)) {
             return true;
         }
-        return static::write("\r\n[ERROR][" . date('Y-m-d H:i:s') . '][' . get_ip() . "]\r\n-请求链接:" . Route::url(true) . "\r\n-文件路径:{$errFile}\r\n-报错内容:{$errInfo}\r\n-加载时间:" . round(microtime(true) - DOVE_START_TIME, 8) . "(s)\r\n-报错备注:{$remarks}\r\n", DOVE_RUNTIME_DIR . 'log/' . date('Ym'), date('d') . '.log');
+
+        $content = "\r\n[ERROR][" . date('Y-m-d H:i:s') . '][' . get_ip() . ']';
+        $content .= "\r\n-请求链接: " . Route::url(true);
+        $content .= "\r\n-文件路径: " . $errFile;
+        $content .= "\r\n-报错内容: " . $errInfo;
+        $content .= "\r\n-加载时间: " . round(microtime(true) - DOVE_START_TIME, 8) . '(s)';
+        $content .= "\r\n-日志备注: " . $remarks ."\r\n";
+
+        return static::write($content, DOVE_RUNTIME_DIR.'log/'.date('Ym'), date('d').'.log');
     }
 
-    private static function write($text, $path, $file)
+    /**
+     * 写入日志文件
+     */
+    private static function write($text, $path, $filename)
     {
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
         }
-        return file_put_contents($path . '/' . $file, $text, FILE_APPEND | LOCK_EX);
+        return file_put_contents($path.'/'.$filename, $text, FILE_APPEND|LOCK_EX);
     }
 }

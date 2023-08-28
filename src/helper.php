@@ -16,6 +16,15 @@ use dove\Config;
 use dove\Api;
 
 /**
+ * TODO 框架 Request、Response
+ * @return Api
+ */
+function dove() :Api
+{
+    return new Api();
+}
+
+/**
  * 获取配置 [Get config]
  * @param string $select 配置名称
  * @param mixed $def 默认内容
@@ -65,30 +74,6 @@ function set_ini($array = [])
         if (ini_get($varname)) ini_set($varname, strval($newvalue));
     }
     return true;
-}
-
-/**
- * 找到某个函数所在的位置 [Find the location of a function]
- * @param mixed $name 函数名称
- * @return string
- */
-function function_dump($funcname)
-{
-    try {
-        if (is_array($funcname)) {
-            $func = new \ReflectionMethod($funcname[0], $funcname[1]);
-            $funcname = $funcname[1];
-        } else {
-            $func = new \ReflectionFunction($funcname);
-        }
-    } catch (\ReflectionException $e) {
-        die($e->getMessage());
-        return;
-    }
-    $start   = $func->getStartLine() - 1;
-    $end     = $func->getEndLine() - 1;
-    $filename = $func->getFileName();
-    die("已找到函数 {$funcname} 在文件 [{$filename}]:{$start}-{$end}行)");
 }
 
 /**

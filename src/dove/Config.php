@@ -7,7 +7,7 @@ namespace dove;
 use Exception;
 
 /**
- * DoveAPI框架配置支持
+ * DoveAPI 框架配置模块
  * @package dove
  */
 class Config
@@ -70,16 +70,5 @@ class Config
             throw new Exception("配置文件 {$config} 不存在", 500);
         }
         return self::$_config[$config] = require $file;
-    }
-
-    /**
-     * 配置文件产生
-     * @param string $name 配置文件名称
-     * @param string $config_arr 配置文件内容
-     */
-    // TODO 此为预留方法，配合composer
-    public static function create($name = '', $config_arr = "<?php\nreturn [];")
-    {
-        return file_put_content(DOVE_CONFIG_DIR . $name . '.php', $config_arr);
     }
 }

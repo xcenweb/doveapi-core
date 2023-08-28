@@ -29,17 +29,17 @@ class Api
      */
     public $response;
 
-    // autoload
     function __construct()
     {
         $this->config = Config::get('api', '*');
-
-        // create two tool class: $this->request->xx();
         $this->request = new Request();
         $this->response = new Response($this->config);
     }
 
-    // $this->start([...]); start
+    /**
+     * 初始化
+     * @param array $set
+     */
     public function start($set = [])
     {
         // if repeat is continue
@@ -55,9 +55,10 @@ class Api
     }
 }
 
+
 /**
- * 输入请求便捷操作
- * @package dove
+ * 请求
+ * @package dove\Api
  */
 class Request
 {
@@ -111,7 +112,11 @@ class Request
     }
 }
 
-// api返回
+
+/**
+ * 响应
+ * @package dove\Api
+ */
 class Response
 {
     public $response;
@@ -172,9 +177,9 @@ class Response
      * 输出json,输出后停止运行
      * $this->response->json()
      */
-    public function json($arr = [])
+    public function json($arr = [], $encoding = 'utf-8')
     {
-        header('Content-type: application/json;charset=utf-8');
+        header('Content-type: application/json;charset=' . $encoding);
         die(json_encode($arr, JSON_UNESCAPED_UNICODE));
     }
 
@@ -182,11 +187,11 @@ class Response
      * 输出xml,输出后停止运行
      * $this->response->xml()
      */
-    public function xml($arr = [])
+    public function xml($arr = [], $startElement = 'response', $version = '1.0', $encoding = 'utf-8')
     {
         // TODO 增加参数
-        header("Content-type: text/xml;charset=utf-8");
-        die(Arr::toxml($arr, 'response'));
+        header("Content-type: text/xml;charset=" . $encoding);
+        die(Arr::toxml($arr, $startElement, $version, $encoding));
     }
 
     /**

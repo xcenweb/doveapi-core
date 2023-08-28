@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace dove;
 
-use Exception;
 use dove\Log;
 use dove\App;
 use dove\Route;
 use dove\Config;
 
 /**
- * DoveAPI框架调试支持
+ * DoveAPI 框架调试模块
  * @package dove
  */
 class Debug
@@ -21,13 +20,18 @@ class Debug
 	public static $file; //error file
 	public static $backtrace; // trace array
 
+	/**
+	 * 模块注册
+	 */
 	public static function register()
 	{
 		set_error_handler(['\\dove\\Debug', 'error']);
 		set_exception_handler(['\\dove\\Debug', 'exception']);
 	}
 
-	// E_ALL error 抛错
+	/**
+	 * E_ALL抛错 (set_error_handler)
+	 */
 	public static function error($level, $info, $file, $line)
 	{
 		self::$code = 500;
@@ -36,53 +40,78 @@ class Debug
 		$level = isset($levels[$level]) ? $levels[$level] : 'Unkonw error';
 		self::$info = $level . ': ' . $info;
 		self::$backtrace = array_reverse(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
-		static::de();
+		static::exit();
 	}
 
-	// 抓取 exception 并抛错
+	/**
+	 * 抓取exception并抛错 (set_exception_handler)
+	 */
 	public static function exception($e)
 	{
 		self::$code = $e->getCode();
 		self::$file = $e->getFile();
-		self::$info = $e->getMessage() . ' 在文件[' . $e->getFile() . '] 第' . $e->getLine() . '行';
+		// self::$info = $e->getMessage(). ', in file [' .$e->getFile(). '], Line' .$e->getLine();
+		self::$info = sprintf('%s, in file [%s], Line %d', $e->getMessage(), $e->getFile(), $e->getLine());
 		self::$backtrace = array_reverse($e->getTrace());
-		static::de();
+		static::exit();
 	}
 
-	// 手动抛错
-	public static function de()
+	/**
+	 * 抛错
+	 * Fixed 2023.8.27 可读性差的问题
+	 */
+	public static function exit()
 	{
-		$debug = Config::get('dove', 'debug', false);
-		$debug_mode = (Config::get('dove', 'debug_mode', 'page') == 'page') ? true : false;
-		$debug_pe_mode = (Config::get('dove', 'pe_debug_mode', 'page') == 'page') ? true : false;
+		$debug = Config::get('dove', 'debug', false); // 是否开发环境
+		$debug_mode = Config::get('debug', 'debug_mode', 'page'); // 开发环境下
+		$debug_pe_mode = Config::get('debug', 'pe_debug_mode', 'json'); // 生产环境下
+
 		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
 			// 如果是一个ajax请求，直接返回json
-			Log::saveErr(self::$file, self::$info, '(ajax)');
-			static::json(($debug) ? Config::get('dove', 'debug_mode_json_path') : Config::get('dove', 'pe_debug_mode_json_path'));
+			Log::debug(self::$file, self::$info, '【ajax】' . ($debug) ? '调试模式报错' : '生产环境报错');
+			static::json(Config::get('debug', ($debug) ? 'debug_mode_json_path' : 'pe_debug_mode_json_path'));
 		}
-		Log::saveErr(self::$file, self::$info, ($debug) ? '调试模式报错' : '生产环境报错');
-		($debug) ? (($debug_mode) ? static::page(Config::get('dove', 'debug_mode_page_path')) : static::json(Config::get('dove', 'debug_mode_json_path'))) : (($debug_pe_mode) ? static::page(Config::get('dove', 'pe_debug_mode_page_path')) : static::json(Config::get('dove', 'pe_debug_mode_json_path')));
+
+		Log::debug(self::$file, self::$info, ($debug) ? '调试模式报错' : '生产环境报错');
+		if ($debug) {
+			// 开发环境
+    		if ($debug_mode == 'page') {
+        		static::page(Config::get('debug', 'debug_mode_page_path'));
+    		} else {
+        		static::json(Config::get('debug', 'debug_mode_json_path'));
+    		}
+		} else {
+			// 生产环境
+    		if ($debug_pe_mode == 'page') {
+        		static::page(Config::get('debug', 'pe_debug_mode_page_path'));
+    		} else {
+        		static::json(Config::get('debug', 'pe_debug_mode_json_path'));
+    		}
+		}
 	}
 
-	// 输出标准html界面，加入模板变量
+	/**
+	 * 输出标准html界面，加入模板变量
+	 */
 	public static function page($tpl)
 	{
 		$stack = '';
 		$line = 1;
 		foreach (self::$backtrace as $key => $val) {
-			$stack .= "<kbd>{$line}.</kbd> is ";
+			$stack .= sprintf("<kbd>%d.</kbd> is ", $line);
 			if (isset($val['classs'])) {
-				$stack .= '<u>' . $val['class'] . '</u>' . $val['type'];
+				$stack .= sprintf('<u>%s</u>%s', $val['class'], $val['type']);
 			}
 			if (isset($val['function'])) {
 				$stack .= ($val['function'] == '{closure}') ? '<font color="red"><b>{closure}</b></font>' : '<mark>' . $val['function'] . '()</mark>';
 			}
 			if (isset($val['file']) && isset($val['line'])) {
-				$stack .= '在文件 [<u>' . $val['file'] . ']</u> <b>第' . $val['line'] . '行</b>';
+				$stack .= sprintf('在文件 [<u>%s</u>] 第<b>%d</b>行', $val['file'], $val['line']);
 			}
 			$stack .= "\r\n";
 			$line++;
 		}
+
 		$array = [
 			'domain' => Route::domain(),
 
@@ -99,7 +128,9 @@ class Debug
 			'version' => DOVE_VERSION,
 			'exitTime' => round(microtime(true) - DOVE_START_TIME, 8),
 		];
-		/** 中文语法报错支持 再研究一下
+
+		/** 
+		 * TODO 中文语法报错支持 再研究一下
 		 *   if(empty(App::$file)){
 		 *       $uncf_content = '[File Not Found]';
 		 *   }else{
@@ -113,11 +144,13 @@ class Debug
 		 *   }
 		 *   $array['mistake_file'] = '<div class="mdui-row"><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 未编译文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$file).'</small></div><pre><code>'.$uncf_content.'</code></pre></div><div class="mdui-col-xs-12 mdui-col-sm-6"><div class="mdui-typo"><h3> 编译后文件 </h3><small>'.str_replace(ROOT_DIR,'',App::$cachePath).'</small></div><pre><code>'.$cf_content.'</code></pre></div></div>';
 		 */
+
 		if (empty(App::$file)) {
 			$content = '[404 File Not Found]';
 		} else {
 			$content = file_exists(App::$file) ? htmlspecialchars(file_get_contents(App::$file)) : '[404 File Not Found]';
 		}
+		
 		$array['mistake_file'] = '<div class="mdui-typo"><h3> 发生错误的文件 </h3><small>/' . str_replace(ROOT_DIR, '', App::$file) . '</small></div><pre><code>' . $content . '</code></pre>';
 		$value = [];
 		$string = [];
@@ -125,12 +158,17 @@ class Debug
 			$value[] = '{$' . $val . '}';
 			$string[] = $str;
 		}
+
 		ob_clean();
+
 		header('Content-type: text/html;charset=utf-8');
+
 		die(str_replace($value, $string, file_get_contents($tpl)));
 	}
 
-	// 输出标准json格式
+	/**
+	 * 输出标准的json格式界面，赋值方法内部php变量
+	 */
 	public static function json($tpl)
 	{
 		$stack = [];
@@ -147,12 +185,14 @@ class Debug
 			}
 			$line++;
 		}
+
 		$code = self::$code;
 		$info = self::$info;
 		$file = self::$file;
-
 		$array = require $tpl;
+
 		ob_clean();
+
 		header('Content-type: application/json;charset=utf-8');
 		die(json_encode($array, JSON_UNESCAPED_UNICODE));
 	}
@@ -162,14 +202,18 @@ class Debug
 	 * @param array $array
 	 * @return string
 	 */
-	public static function array_list($array)
+	public static function array_list($array = [])
 	{
 		$return = '';
 		foreach ($array as $k => $v) {
+
 			if ($v == '') $v = '<font color="red">NULL</font>';
+
 			if (is_numeric($v)) $v = '<font color="blue">' . $v . '</font>';
+
 			if ($v == 'false') $v = '<font color="red">' . $v . '</font>';
 			if ($v == 'true') $v = '<font color="green">' . $v . '</font>';
+
 			$return .= "<b>$k</b> = $v<br>";
 		}
 		return empty($return) ? '<font color="red">--Empty--</font>' : $return;
