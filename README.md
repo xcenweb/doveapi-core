@@ -6,7 +6,7 @@ DoveAPI框架核心组件
 
 # 赞助 & 感谢列表
 
-<img src="https://img1.imgtp.com/2023/08/28/nQiQUn5d.jpg" height="240px"/>
+<img src="https://s1.ax1x.com/2023/08/28/pPaUc1P.png" height="230px"/>
 
 感谢以下所有赞助者，
 同时感谢所有参与贡献的开发者！
