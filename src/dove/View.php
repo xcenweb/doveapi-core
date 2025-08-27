@@ -5,7 +5,7 @@ use Exception;
 use dove\Config;
 
 /**
- * DoveAPI 框架视图类
+ * TODO DoveAPI 框架视图类
  * @package dove
  */
 class View {
@@ -14,22 +14,26 @@ class View {
      * 模板文件路径
      * @var string
      */
-    protected $template;
+    public $template_path;
 
+    /**
+     * 初始化
+     */
     public function __construct() {
-        // Config::get('view', '*', []);
+        $this->template_path = Config::get('view', 'template_path');
     }
 
     /**
-     * 输出模板
+     * 渲染模板
+     * @return string
      */
     public function render() {
         
-        if (!file_exists($this->template)) {
-            throw new Exception("模板文件不存在！");
+        if (!file_exists($this->template_path)) {
+            throw new Exception('模板文件不存在！');
         }
 
-        $output = file_get_contents($this->template);
+        $output = file_get_contents($this->template_path);
 
         return $output;
     }

@@ -29,7 +29,7 @@ class Encrypt
 	}
 
 	/**
-	 * TODO md5解密，彩虹表查询，咕一段时间
+	 * TODO md5解密，彩虹表查询
 	 * @parma $string md5加密字符
 	 * @return mixed
 	 */

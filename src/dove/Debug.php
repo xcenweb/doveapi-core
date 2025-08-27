@@ -50,7 +50,6 @@ class Debug
 	{
 		self::$code = $e->getCode();
 		self::$file = $e->getFile();
-		// self::$info = $e->getMessage(). ', in file [' .$e->getFile(). '], Line' .$e->getLine();
 		self::$info = sprintf('%s, in file [%s], Line %d', $e->getMessage(), $e->getFile(), $e->getLine());
 		self::$backtrace = array_reverse($e->getTrace());
 		static::exit();
@@ -66,7 +65,7 @@ class Debug
 		$debug_mode = Config::get('debug', 'debug_mode', 'page'); // 开发环境下
 		$debug_pe_mode = Config::get('debug', 'pe_debug_mode', 'json'); // 生产环境下
 
-		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+		if (Route::isAjax()) {
 			// 如果是一个ajax请求，直接返回json
 			Log::debug(self::$file, self::$info, '【ajax】' . ($debug) ? '调试模式报错' : '生产环境报错');
 			static::json(Config::get('debug', ($debug) ? 'debug_mode_json_path' : 'pe_debug_mode_json_path'));

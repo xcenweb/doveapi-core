@@ -52,7 +52,7 @@ class App
         $baseUrlArr = explode('/', $baseUrl);
         $pathinfo = str_replace('\\', '/', pathinfo($baseUrl));
 
-        $AClist = Config::get('dove', '*', []);
+        $AClist = Config::get('router', '*', []);
 
         if ($pathinfo['dirname'] == '/' || $pathinfo['dirname'] == '.') {
             if ($pathinfo['basename'] == '') {
@@ -78,7 +78,7 @@ class App
         }
 
         if (!file_exists(self::$file)) {
-            throw new Exception('路由不存在，访问路径 [' . self::$file . ']', 404);
+            throw new Exception('路由不存在，当前访问路径 [' . self::$file . ']', 404);
         }
 
         if (Config::get('api', 'autoload', false)) {

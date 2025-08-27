@@ -37,7 +37,7 @@ class Log
      */
     public static function debug($errFile = 'null', $errInfo = 'null', $remarks = 'false')
     {
-        if (!Config::get('dove', 'debug_log') || !Config::get('log', 'log_switch', true)) {
+        if (!Config::get('log', 'debug_log') || !Config::get('log', 'log_switch', true)) {
             return true;
         }
 

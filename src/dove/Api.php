@@ -14,7 +14,16 @@ use dove\tool\Arr;
  */
 class Api
 {
+    /**
+     * 是否加载
+     * @var bool
+     */
     public $started = false;
+
+    /**
+     * 配置
+     * @var array
+     */
     public $config;
 
     /**
@@ -189,7 +198,6 @@ class Response
      */
     public function xml($arr = [], $startElement = 'response', $version = '1.0', $encoding = 'utf-8')
     {
-        // TODO 增加参数
         header("Content-type: text/xml;charset=" . $encoding);
         die(Arr::toxml($arr, $startElement, $version, $encoding));
     }

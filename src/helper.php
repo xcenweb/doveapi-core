@@ -16,10 +16,9 @@ use dove\Config;
 use dove\Api;
 
 /**
- * TODO 框架 Request、Response
- * @return Api
+ * DoveAPI框架 Request、Response
  */
-function dove() :Api
+function dove()
 {
     return new Api();
 }
